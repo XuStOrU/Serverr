@@ -464,7 +464,7 @@
     </div>
 
     <div class="field-label">Никнейм:</div>
-    <input type="text" class="input-field" id="nickname" value="Khuilans" placeholder="Ваш ник">
+    <input type="text" class="input-field" id="nickname" value="" placeholder="Ваш ник">
 
     <div class="field-label">Текст:</div>
     <textarea class="input-field" id="reviewText" placeholder="Как прошла сделка?"></textarea>
@@ -482,13 +482,39 @@
   <div class="toast" id="toast">Спасибо! Отзыв сохранён</div>
 
   <script>
+    function getTgNickname() {
+      try {
+        const tg = window.Telegram?.WebApp;
+        const u = tg?.initDataUnsafe?.user;
+        if (!u) return '';
+        // приоритет: username → first_name → last_name
+        if (u.username) return u.username;
+        const parts = [u.first_name, u.last_name].filter(Boolean);
+        if (parts.length) return parts.join(' ');
+        return '';
+      } catch (e) {
+        return '';
+      }
+    }
+
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
       tg.ready();
       tg.expand();
-      tg.setHeaderColor('#1c1c1e');
-      tg.setBackgroundColor('#1c1c1e');
+      try {
+        tg.setHeaderColor('#1c1c1e');
+        tg.setBackgroundColor('#1c1c1e');
+      } catch (e) {}
     }
+
+    // Подставить ник из Telegram-аккаунта
+    (function fillNickname() {
+      const nick = getTgNickname();
+      const input = document.getElementById('nickname');
+      if (input && nick && !input.value) {
+        input.value = nick;
+      }
+    })();
 
     // Анимация заполнения зелёных полосок
     setTimeout(() => {
@@ -731,6 +757,51 @@
       }
     }
 
+
+    let selectedStars = 0;
+    let hasReviewed = false;
+
+    function showAlreadyReviewed() {
+      const form = document.getElementById('reviewForm');
+      if (!form) return;
+      form.innerHTML = `
+        <h3>Ваш отзыв</h3>
+        <div class="note">Виден только вам · поддержка <a href="https://t.me/Lolzdeals_supports">@Lolzdeals_supports</a></div>
+        <div class="already-reviewed">Спасибо! Вы уже оставили отзыв.</div>
+      `;
+    }
+
+    // Восстановить состояние если уже оставлял отзыв
+    try {
+      if (localStorage.getItem('lolz_reviewed') === '1') {
+        hasReviewed = true;
+        showAlreadyReviewed();
+        const saved = localStorage.getItem('lolz_my_review');
+        if (saved) {
+          const r = JSON.parse(saved);
+          // добавить свой отзыв в начало если его ещё нет
+          if (r && r.name && r.text) {
+            reviews.unshift(r);
+          }
+        }
+      }
+    } catch (e) {}
+
+    // Выбор звёзд
+    (function initStars() {
+      const starsEl = document.getElementById('starsSelect');
+      if (!starsEl) return;
+      starsEl.querySelectorAll('.s').forEach(star => {
+        star.addEventListener('click', () => {
+          if (hasReviewed) return;
+          selectedStars = parseInt(star.dataset.v, 10);
+          starsEl.querySelectorAll('.s').forEach(s => {
+            s.classList.toggle('active', parseInt(s.dataset.v, 10) <= selectedStars);
+          });
+        });
+      });
+    })();
+
     function publishReview() {
       if (hasReviewed) return;
       const nick = document.getElementById('nickname').value.trim() || 'Аноним';
@@ -748,23 +819,24 @@
       const months = ['янв.', 'фев.', 'мар.', 'апр.', 'мая', 'июн.', 'июл.', 'авг.', 'сен.', 'окт.', 'ноя.', 'дек.'];
       const dateStr = `${today.getDate()} ${months[today.getMonth()]} ${today.getFullYear()} г.`;
       
-      reviews.unshift({
+      const myReview = {
         name: nick,
         text: text,
         date: dateStr,
         stars: selectedStars
-      });
+      };
+      reviews.unshift(myReview);
+
+      try {
+        localStorage.setItem('lolz_reviewed', '1');
+        localStorage.setItem('lolz_my_review', JSON.stringify(myReview));
+      } catch (e) {}
 
       document.getElementById('totalCount').textContent = (reviews.length).toLocaleString('ru-RU');
       renderReviews(true);
 
-      document.getElementById('reviewForm').innerHTML = `
-        <h3>Ваш отзыв</h3>
-        <div class="note">Виден только вам · поддержка <a href="https://t.me/Lolzdeals_supports">@Lolzdeals_supports</a></div>
-        <div class="already-reviewed">Спасибо! Вы уже оставили отзыв.</div>
-      `;
-
       hasReviewed = true;
+      showAlreadyReviewed();
       showToast('Спасибо! Отзыв сохранён');
     }
 
